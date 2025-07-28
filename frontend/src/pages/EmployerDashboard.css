@@ -1,0 +1,112 @@
+:root {
+    --primary-bg: #F2EFE7; /* Light Cream */
+    --sidebar-bg: #006A71; /* Dark Teal */
+    --card-bg: #9ACBD0; /* Soft Teal */
+    --btn-primary: #48A6A7;
+    --gradient-bg: linear-gradient(to bottom, #F2EFE7, #006A71);
+  }
+  
+  /* 🌟 Page Layout */
+  .employer-dashboard {
+    display: flex;
+    min-height: 100vh;
+    background: var(--gradient-bg);
+  }
+  
+  /* 🌟 Sidebar */
+  .sidebar {
+    width: 280px; /* Made Sidebar Wider */
+    background: var(--sidebar-bg);
+    padding: 20px;
+    height: 100vh;
+  }
+  
+  .sidebar-btn {
+    background: var(--card-bg);
+    color: var(--sidebar-bg);
+    border: none;
+    padding: 12px;
+    font-size: 1rem;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 10px;
+  }
+  
+  .sidebar-btn:hover {
+    background: var(--primary-bg);
+    color: var(--sidebar-bg);
+  }
+  
+  /* 🌟 Enlarged Dashboard Content */
+  .dashboard-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px; /* More Spacing */
+    max-width: 1200px; /* Increased Max Width */
+    margin: auto;
+  }
+  
+  /* 🌟 Enlarged Card */
+  .employer-card {
+    background-color: var(--primary-bg);
+    padding: 40px; /* More Spacious Padding */
+    border-radius: 12px;
+    box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 900px; /* Increased Card Size */
+    color: var(--sidebar-bg);
+  }
+  
+  .company-logo {
+    color: var(--sidebar-bg);
+  }
+  
+  /* 🌟 Icons */
+  .icon {
+    color: var(--sidebar-bg);
+    margin-right: 8px;
+  }
+  
+  /* 🌟 Enlarged Buttons */
+  .teal-button {
+    background-color: var(--btn-primary);
+    color: #ffffff;
+    border: none;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 30px;
+    width: 48%;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .teal-button:hover {
+    background-color: var(--primary-bg);
+    color: var(--sidebar-bg);
+    border: 1px solid var(--btn-primary);
+  }
+  
+  /* 🌟 Responsive */
+  @media screen and (max-width: 992px) {
+    .dashboard-content {
+      padding: 20px;
+      max-width: 100%;
+    }
+  
+    .employer-card {
+      padding: 30px;
+      max-width: 100%;
+    }
+  
+    .sidebar {
+      width: 240px;
+    }
+  
+    .teal-button {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+  

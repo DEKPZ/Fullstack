@@ -1,0 +1,46 @@
+/* Background */
+body {
+    background: linear-gradient(to bottom, #F2EFE7, #006A71);
+    min-height: 100vh;
+    margin: 0;
+    font-family: "Arial", sans-serif;
+}
+
+/* Dashboard Title */
+.dashboard-title {
+    font-weight: bold;
+    color: #004d4d;
+}
+
+/* Hired Interns Card */
+.hired-interns-card {
+    border-radius: 12px;
+    padding: 20px;
+    background: white;
+    transition: 0.3s;
+}
+
+.hired-interns-card:hover {
+    transform: scale(1.02);
+}
+
+/* Table Styling */
+.table-header {
+    background-color: #008080;
+    color: white;
+    text-align: center;
+}
+
+table {
+    text-align: center;
+    border-radius: 8px;
+}
+
+th, td {
+    padding: 12px;
+}
+
+/* Icons */
+.table-header th svg {
+    margin-right: 5px;
+}

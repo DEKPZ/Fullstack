@@ -1,0 +1,86 @@
+/* BuildResume.css */
+
+body {
+  background-color: #f9f9f7;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h2, h5 {
+  color: #006d77;
+  font-weight: bold;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  background-color: #fff;
+}
+
+.card h5 {
+  color: #023e3e;
+  margin-bottom: 20px;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #008080;
+  box-shadow: 0 0 0 2px rgba(0, 128, 128, 0.2);
+}
+
+button {
+  font-weight: 500;
+}
+
+button.btn-outline-primary {
+  color: #006d77;
+  border-color: #006d77;
+}
+
+button.btn-outline-primary:hover {
+  background-color: #006d77;
+  color: #fff;
+}
+
+button.btn-success {
+  background-color: #006d77;
+  border-color: #006d77;
+}
+
+button.btn-success:hover {
+  background-color: #004d4d;
+  border-color: #004d4d;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Printable Resume Area */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #root > * {
+    display: none !important;
+  }
+
+  .react-to-print-content,
+  .react-to-print-content * {
+    visibility: visible;
+  }
+
+  .react-to-print-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+  }
+}

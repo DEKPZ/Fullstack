@@ -1,0 +1,576 @@
+/* Home Page Styles - I-Intern Color Schema */
+
+/* Main container */
+.home-container {
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #F2EFE7;
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(to right, #006A71, #0b4041);
+  color: white;
+  padding: 6rem 0 8rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(72, 166, 167, 0.1) 0%, rgba(0, 106, 113, 0.1) 100%);
+  pointer-events: none;
+}
+
+.hero-content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
+  font-weight: 800;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+}
+
+@media (min-width: 768px) {
+  .hero-title {
+    font-size: 4rem;
+  }
+}
+
+.hero-accent {
+  color: #48A6A7;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  max-width: 48rem;
+  margin: 0 auto 2.5rem auto;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+@media (min-width: 768px) {
+  .hero-subtitle {
+    font-size: 1.375rem;
+  }
+}
+
+.hero-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+  background-color: #48A6A7;
+  border: none;
+  color: white;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.hero-btn-primary:hover {
+  background-color: #108575;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 25px rgba(72, 166, 167, 0.3);
+}
+
+.hero-btn-outline {
+  background-color: transparent;
+  border: 2px solid #48A6A7;
+  color: #48A6A7;
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.hero-btn-outline:hover {
+  background-color: #48A6A7;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 25px rgba(72, 166, 167, 0.3);
+}
+
+/* 🌟 Search Section */
+.search-section {
+  padding: 3rem 0;
+  background-color: #ffffff;
+}
+
+.search-container {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 2px solid #48A6A7;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: #006A71;
+  box-shadow: 0px 4px 20px rgba(0, 106, 113, 0.2);
+}
+
+.search-icon {
+  color: #48A6A7;
+  margin-right: 0.75rem;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 0.75rem 0;
+  color: #006A71;
+  background-color: transparent;
+  text-align: left;
+  direction: ltr;
+}
+.search-input {
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ✅ Cross-browser placeholder left alignment */
+.search-input::placeholder,
+.search-input::-webkit-input-placeholder,
+.search-input:-moz-placeholder,
+.search-input::-moz-placeholder,
+.search-input:-ms-input-placeholder {
+  color: rgba(0, 106, 113, 0.6);
+  text-align: left;
+  direction: ltr;
+}
+
+.search-btn {
+  background-color: #48A6A7;
+  border: none;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  margin-left: 0.5rem;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-btn:hover {
+  background-color: #108575;
+  transform: scale(1.05);
+}
+
+/* Features Section */
+.features-section {
+  padding: 5rem 0;
+  background-color: #F2EFE7;
+}
+
+.section-title {
+  font-weight: 800;
+  font-size: 2rem;
+  text-align: center;
+  color: #006A71;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 2.5rem;
+  }
+}
+
+.section-title-accent {
+  color: #48A6A7;
+}
+
+.section-title-white {
+  color: white;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .features-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.feature-card {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.75rem;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(72, 166, 167, 0.1);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: #48A6A7;
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #48A6A7, #006A71);
+  border-radius: 50%;
+  margin: 0 auto 1.5rem auto;
+  color: white;
+}
+
+.feature-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #006A71;
+  margin-bottom: 1rem;
+}
+
+.feature-description {
+  color: #006A71;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+/* 🌟 Updated Internship Grid Section */
+.internships-section {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, #004B4F, #0A3A3C);
+  color: white;
+}
+
+/* 🧱 Internship Grid */
+.internships-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  margin-top: 3rem;
+  padding: 0 1rem;
+}
+
+/* 📦 Internship Card */
+.internship-card {
+  background-color: #EAF8F8;
+  border: 1px solid #BEE6E7;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: none;
+  transition: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+}
+
+/* 🎓 Internship Title */
+.internship-title {
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #004B4F;
+  margin-bottom: 1rem;
+}
+
+/* 📌 Internship Details */
+.internship-details {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.internship-company {
+  font-weight: 600;
+  color: #48A6A7;
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.internship-location,
+.internship-salary {
+  color: #333333;
+  font-size: 0.95rem;
+}
+
+/* 🎯 Apply Now Button */
+.internship-apply-btn {
+  background-color: #48A6A7;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s ease;
+}
+
+.internship-apply-btn:focus {
+  outline: 2px solid #2c7b7c;
+}
+
+/* 🧠 Typography */
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.section-title-white {
+  color: #ffffff;
+}
+
+.section-title-accent {
+  color: #FFDE59;
+}
+
+/* 🔁 Responsive Padding */
+@media (max-width: 480px) {
+  .internship-card {
+    padding: 1.25rem;
+  }
+
+  .internship-title {
+    font-size: 1.1rem;
+  }
+
+  .internship-apply-btn {
+    font-size: 0.9rem;
+  }
+}
+
+
+/* Call to Action Section */
+.cta-section {
+  padding: 5rem 1.5rem;
+  background: linear-gradient(135deg, #f5fafa 0%, #ffffff 100%);
+  border-top: 1px solid rgba(0, 105, 112, 0.1);
+  border-bottom: 1px solid rgba(0, 105, 112, 0.1);
+  box-shadow: inset 0 1px 0 rgba(0, 105, 112, 0.05);
+}
+
+.cta-content {
+  text-align: center;
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+.cta-title {
+  font-weight: 800;
+  font-size: 2rem;
+  color: #006970;
+  margin-bottom: 1.5rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  text-align: center;
+  word-break: break-word;
+}
+
+
+@media (min-width: 768px) {
+  .cta-title {
+    font-size: 2.5rem;
+  }
+}
+
+.cta-accent {
+  color: #48A6A7;
+}
+
+.cta-subtitle {
+  font-size: 1.125rem;
+  color: #00555d;
+  opacity: 0.85;
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  max-width: 46rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 768px) {
+  .cta-subtitle {
+    font-size: 1.25rem;
+  }
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.cta-buttons button {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+/* Primary Variant */
+.cta-buttons button[data-variant="primary"] {
+  background-color: #48A6A7;
+  border: none;
+  color: white;
+}
+
+.cta-buttons button[data-variant="primary"]:hover {
+  background-color: #108575;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 25px rgba(72, 166, 167, 0.3);
+}
+
+/* Secondary Variant */
+.cta-buttons button[data-variant="secondary"] {
+  background-color: #209e94;
+  border: none;
+  color: white;
+}
+
+.cta-buttons button[data-variant="secondary"]:hover {
+  background-color: #108575;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 25px rgba(32, 158, 148, 0.3);
+}
+
+/* Outline Variant */
+.cta-buttons button[data-variant="outline"] {
+  background-color: transparent;
+  border: 2px solid #48A6A7;
+  color: #48A6A7;
+}
+
+.cta-buttons button[data-variant="outline"]:hover {
+  background-color: #48A6A7;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0px 8px 25px rgba(72, 166, 167, 0.3);
+}
+
+
+/* Utility Classes */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-btn-primary,
+  .hero-btn-outline {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .search-input-wrapper {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .cta-buttons button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+/* 🌟 Glassmorphism Effect */
+.glassmorph {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(72, 166, 167, 0.2);
+}
+
+/* ✨ Glowing Hover Effect */
+.glow-on-hover {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.glow-on-hover::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, #48A6A7, #006A71, #108575);
+  opacity: 0.2;
+  transform: scale(0);
+  transition: transform 0.4s ease;
+  border-radius: 50%;
+  z-index: 0;
+}
+
+.glow-on-hover:hover::before {
+  transform: scale(1.5);
+}
+
+.glow-on-hover:hover {
+  background-color: #006A71;
+  color: #fff;
+}

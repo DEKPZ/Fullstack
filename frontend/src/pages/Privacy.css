@@ -1,0 +1,78 @@
+/* 🌟 Privacy.css - Professional Styling Consistent with I-Intern */
+
+/* Container Styling */
+.privacy-container {
+    background-color: #F2EFE7;
+    background: linear-gradient(to bottom, #F2EFE7,#006A71);
+    min-height: 100vh;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .privacy-card {
+    background-color: #48A6A7;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 30px;
+    width: 100%;
+    max-width: 800px;
+    color: #F2EFE7;
+  }
+  
+  .privacy-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .privacy-highlight {
+    font-weight: bold;
+    color: #F2EFE7;
+  }
+  
+  .privacy-subtitle {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #F2EFE7;
+    margin-top: 20px;
+  }
+  
+  .privacy-content p,
+  .privacy-list {
+    font-size: 1rem;
+    color: #F2EFE7;
+    line-height: 1.6;
+  }
+  
+  .privacy-list {
+    margin-left: 20px;
+  }
+  
+  .privacy-button {
+    background-color: #006A71;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 25px;
+    width: 100%;
+    margin-top: 20px;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .privacy-button:hover {
+    background-color: #F2EFE7;
+    color: #006A71;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .privacy-card {
+      padding: 20px;
+    }
+  }
+  

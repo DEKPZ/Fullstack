@@ -1,0 +1,38 @@
+.applicant-profile-container {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.applicant-profile-card {
+  width: 100%;
+  max-width: 900px;
+  padding: 2rem;
+  border-radius: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.profile-heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #006d77;
+}
+
+.skills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.skill-badge {
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+.action-buttons {
+  margin-top: 2rem;
+  text-align: center;
+}
+

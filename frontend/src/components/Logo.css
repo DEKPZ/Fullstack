@@ -1,0 +1,35 @@
+/* Logo.css */
+@import url('https://fonts.googleapis.com/css2?family=Rexton:wght@700&display=swap'); /* Import REXTON Font */
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-image {
+    height: 50px;
+    width: 50px;
+}
+
+.app-name {
+    font-family: 'Rexton', sans-serif;
+    font-size: 1.8rem;
+    color: #48A6A7;
+    font-weight: 700;
+}
+
+.logo-container a {
+    text-decoration: none;
+}
+
+@media screen and (max-width: 768px) {
+    .app-name {
+        font-size: 1.5rem;
+    }
+
+    .logo-image {
+        height: 40px;
+        width: 40px;
+    }
+}

@@ -1,0 +1,69 @@
+I-Intern/
+│── backend/                 # Backend (Node.js + Express + PostgreSQL)
+│   ├── config/              # Database configuration
+│   │   ├── db.js            # PostgreSQL connection setup
+│   ├── controllers/         # API controllers for business logic
+│   │   ├── internshipController.js  # Internship-related API logic
+│   │   ├── userController.js        # User authentication & management
+│   ├── middleware/          # Authentication & authorization middleware
+│   │   ├── authMiddleware.js       # Protect routes with JWT
+│   ├── models/              # Database models
+│   │   ├── User.js          # User model
+│   │   ├── Internship.js    # Internship model
+│   │   ├── Application.js   # Internship applications model
+│   │   ├── index.js         # Connects all models
+│   ├── routes/              # API routes
+│   │   ├── internships.js   # Internship routes (CRUD)
+│   │   ├── auth.js          # Authentication routes (login/register)
+│   │   ├── users.js         # User-related routes (profile, dashboard)
+│   ├── utils/               # Utility functions
+│   │   ├── generateToken.js # JWT Token generation
+│   │   ├── hashPassword.js  # Password hashing & verification
+│   │   ├── errorHandler.js  # Custom error handling middleware
+│   │   ├── sendEmail.js     # Email service utility
+│   ├── .env                 # Environment variables (DB credentials, JWT secret)
+│   ├── server.js            # Main server file (Express setup)
+│   ├── package.json         # Backend dependencies
+│   ├── README.md            # Backend documentation
+│
+│── frontend/                # Frontend (React + Tailwind CSS)
+│   ├── public/              # Static files (favicon, manifest, images)
+│   │   ├── images/          # Images folder
+│   │   │   ├── logo.png         # App logo
+│   │   │   ├── banner.jpg       # Homepage banner
+│   │   │   ├── company-logos/   # Employer logos
+│   │   │   │   ├── google.png
+│   │   │   │   ├── amazon.png
+│   │   │   │   ├── microsoft.png
+│   │   ├── favicon.ico      # Website favicon
+│   │   ├── index.html       # Main HTML entry point
+│   │   ├── manifest.json    # Web app metadata
+│   │   ├── robots.txt       # SEO rules for search engines
+│   ├── src/                 # React source files
+│   │   ├── assets/          # Images, logos, icons, styles
+│   │   ├── components/      # Reusable UI components
+│   │   │   ├── Navbar.js
+│   │   │   ├── Footer.js
+│   │   │   ├── InternshipCard.js
+│   │   │   ├── ProtectedRoute.js
+│   │   ├── pages/           # Main pages (views)
+│   │   │   ├── Home.js
+│   │   │   ├── Login.js
+│   │   │   ├── Register.js
+│   │   │   ├── InternshipList.js
+│   │   │   ├── InternshipDetail.js
+│   │   │   ├── StudentDashboard.js
+│   │   │   ├── EmployerDashboard.js
+│   │   │   ├── AdminDashboard.js
+│   │   ├── context/         # Global state management (Auth, User Data)
+│   │   │   ├── AuthContext.js
+│   │   ├── utils/           # Utility functions (API requests, formatting)
+│   │   ├── App.js           # Main React component
+│   │   ├── index.js         # React app entry point
+│   ├── .env                 # Frontend environment variables
+│   ├── tailwind.config.js   # Tailwind CSS configuration
+│   ├── package.json         # Frontend dependencies
+│   ├── README.md            # Frontend documentation
+│
+│── README.md                # Project documentation
+│── .gitignore               # Git ignore file

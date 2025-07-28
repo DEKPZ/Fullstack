@@ -1,0 +1,94 @@
+/* 🌟 General Styles for Contact Page */
+.contact-container {
+    background-color: #F2EFE7;
+    background: linear-gradient(to bottom, #F2EFE7, #006A71);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  /* 🌟 Card Styling */
+  .contact-card {
+    background-color: #48A6A7;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 30px;
+    width: 100%;
+    max-width: 700px;
+    color: #006A71;
+  }
+  
+  /* 🌟 Title and Subtitle Styling */
+  .contact-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #F2EFE7;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .contact-subtitle {
+    font-size: 1rem;
+    text-align: center;
+    color: #E8F4F5;
+    margin-bottom: 20px;
+  }
+  
+  /* 🌟 Form Styling */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .form-group {
+    width: 100%;
+  }
+  
+  .contact-form .form-label {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #F2EFE7;
+  }
+  
+  .contact-form .form-control {
+    border-radius: 25px;
+    border: 1px solid #9ACBD0;
+    padding: 10px;
+    font-size: 1rem;
+    color: #006A71;
+  }
+  
+  .contact-form .form-control:focus {
+    border-color: #48A6A7;
+    box-shadow: 0px 0px 5px #48A6A7;
+  }
+  
+  /* 🌟 Button Styling */
+  .contact-button {
+    background-color: #006A71;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 25px;
+    width: 100%;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .contact-button:hover {
+    background-color: #F2EFE7;
+    color: #006A71;
+    border: 1px solid #48A6A7;
+  }
+  
+  /* 🌟 Responsive Design */
+  @media screen and (max-width: 768px) {
+    .contact-card {
+      padding: 20px;
+    }
+  }
+  

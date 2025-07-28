@@ -1,0 +1,50 @@
+:root {
+    --primary-bg: #F2EFE7; /* Light Cream */
+    --sidebar-bg: #006A71; /* Dark Teal */
+    --card-bg: #9ACBD0; /* Soft Teal */
+    --btn-primary: #48A6A7;
+    --gradient-bg: linear-gradient(to bottom, #F2EFE7, #006A71);
+  }
+  
+  .dashboard-page {
+    display: flex;
+    min-height: 100vh;
+    background: var(--gradient-bg);
+  }
+  
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    padding: 20px;
+    height: 100vh;
+  }
+  
+  .sidebar-btn {
+    background: var(--card-bg);
+    color: var(--sidebar-bg);
+    border: none;
+    padding: 12px;
+  }
+  
+  .dashboard-container {
+    flex: 1;
+    padding: 30px;
+  }
+  
+  .internship-card, .resume-card, .skill-card, .community-card, .notification-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+  }
+  
+  .status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  
+  .status.applied { background: yellow; }
+  .status.shortlisted { background: blue; color: white; }
+  .status.interview-scheduled { background: orange; }
+  .status.hired { background: green; color: white; }
+  .status.rejected { background: red; color: white; }
+  

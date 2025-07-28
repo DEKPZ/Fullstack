@@ -1,0 +1,96 @@
+/* 🌟 Background applied only to the Intern Dashboard */
+.intern-dashboard-page {
+  background: linear-gradient(to bottom, #F2EFE7, #006A71);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* 🌟 Dashboard container styling */
+.intern-dashboard-container {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  max-width: 900px;
+  width: 100%;
+  text-align: center;
+}
+
+/* 🌟 Profile section */
+.dashboard-profile {
+  margin-bottom: 20px;
+}
+
+.dashboard-profile img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid #006A71;
+}
+
+.dashboard-profile h2 {
+  font-size: 22px;
+  color: #006A71;
+  margin-top: 10px;
+}
+
+/* 🌟 Applications & Recommendations */
+.dashboard-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: rgba(240, 240, 240, 0.8);
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-section h3 {
+  font-size: 18px;
+  color: #014f56;
+  margin-bottom: 10px;
+}
+
+/* 🌟 List styling */
+.dashboard-list .list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  transition: 0.3s ease-in-out;
+}
+
+.dashboard-list .list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* 🌟 Buttons */
+.dashboard-btn {
+  width: 100%;
+  background: rgba(14, 145, 134, 0.9);
+  color: white;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.dashboard-btn:hover {
+  background: rgba(10, 120, 112, 1);
+  transform: scale(1.02);
+}
+
+/* 🌟 Responsive Adjustments */
+@media (max-width: 768px) {
+  .intern-dashboard-container {
+    padding: 20px;
+  }
+
+  .dashboard-btn {
+    font-size: 14px;
+  }
+}
