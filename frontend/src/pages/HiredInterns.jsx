@@ -3,48 +3,46 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Table, Spinner, Alert } from "react-bootstrap";
 import { FaUserGraduate, FaCalendarCheck } from "react-icons/fa";
-// 1. Import the necessary API functions
-import { fetchHiredInterns, fetchUserById, fetchInternshipDetail } from "../api";
+// 1. REMOVE the import for fetchUserById as it's the source of the error
+import { fetchHiredInterns, fetchInternshipDetail, fetchApplicantProfile } from "../api";
 import "./HiredInterns.css";
 
 const HiredInterns = () => {
-  // 2. Set up state for loading, data, and errors
   const [hiredInterns, setHiredInterns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 3. Use useEffect to fetch data when the component loads
   useEffect(() => {
     const loadHiredInterns = async () => {
       try {
         setLoading(true);
-        // First, get the list of applications with 'hired' status
         const hiredApplications = await fetchHiredInterns();
 
         if (hiredApplications.length === 0) {
           setHiredInterns([]);
-          setLoading(false);
+          setLoading(false); // Stop loading if there's nothing to fetch
           return;
         }
 
-        // 4. For each application, fetch the full student and internship details
         const detailedHiredInterns = await Promise.all(
           hiredApplications.map(async (app) => {
-            // Fetch student details (name, email, etc.) and internship details (position title)
-            const [studentData, internshipData] = await Promise.all([
-              fetchUserById(app.student_id),
-              fetchInternshipDetail(app.internship_id)
+            // 2. FIX: Remove the failing fetchUserById call from Promise.all
+            // We now only fetch the internship and the public applicant profile.
+            const [internshipData, profileData] = await Promise.all([
+              fetchInternshipDetail(app.internship_id),
+              fetchApplicantProfile(app.student_id)
             ]);
 
-            // 5. Combine all the data into one object for easy display
+            // 3. FIX: Construct the object using only the data from the successful API calls.
+            // We assume the applicant profile contains the necessary name, email, etc.
             return {
               id: app.id,
-              name: `${studentData.first_name || ''} ${studentData.last_name || ''}`.trim(),
+              name: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim(),
               position: internshipData.title,
-              hiredDate: new Date(app.applied_date).toLocaleDateString(), // Using applied_date as a placeholder
-              email: studentData.email,
-              contact: studentData.phone_number || "N/A",
-              university: "N/A", // The user profile doesn't store this, it could be added to StudentProfile
+              hiredDate: new Date(app.applied_date).toLocaleDateString(), // Using applied_date as a stand-in
+              email: profileData.email || "N/A",
+              contact: profileData.phone_number || "N/A",
+              university: profileData.education || "N/A",
             };
           })
         );
@@ -59,9 +57,8 @@ const HiredInterns = () => {
     };
 
     loadHiredInterns();
-  }, []); // The empty array ensures this runs only once on component mount
+  }, []);
 
-  // 6. Render loading and error states
   if (loading) {
     return <div className="text-center p-5"><Spinner animation="border" /></div>;
   }
@@ -90,7 +87,6 @@ const HiredInterns = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* 7. Dynamically render the hired interns from the state */}
                   {hiredInterns.length > 0 ? (
                     hiredInterns.map((intern) => (
                       <tr key={intern.id}>

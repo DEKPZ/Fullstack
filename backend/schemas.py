@@ -65,13 +65,28 @@ class StudentProfileUpdate(StudentProfileBase):
     """Schema for updating a student profile."""
     pass # No extra fields needed on update beyond base
 
+# --- MODIFICATION START ---
+# This is the corrected response model for a student's profile.
 class StudentProfileResponse(StudentProfileBase):
-    """Schema for student profile data returned in API responses."""
-    id: int
-    user_id: int
+    """
+    Schema for student profile data returned in API responses.
+    This now includes fields from the related User model to avoid extra API calls.
+    """
+    # Inherited from StudentProfileBase: education, skills, experience, etc.
+
+    # Added from the User model for a complete response:
+    id: int  # User ID
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: EmailStr
+    phone_number: Optional[str] = None
+    
+    # The original 'user_id' is no longer needed as 'id' serves this purpose.
 
     class Config:
         from_attributes = True
+# --- MODIFICATION END ---
+
 
 # --- Employer Profile Schemas ---
 

@@ -66,7 +66,6 @@ const EmployerDashboard = () => {
       {/* Sidebar Navigation */}
       <div className="sidebar">
         <ListGroup variant="flush">
-          {/* 1. Added onClick to navigate to the profile page */}
           <Button className="sidebar-btn" onClick={() => navigate("/profile")}>
             <FaBuilding /> Company Profile
           </Button>
@@ -76,10 +75,12 @@ const EmployerDashboard = () => {
           <Button className="sidebar-btn" onClick={() => navigate("/hired-interns")}>
             <FaUsers /> Hired Interns
           </Button>
-          {/* 2. Updated this button to navigate to the view applicants page */}
-          <Button className="sidebar-btn" onClick={() => navigate("/view-applicants/1")}>
+          {/* --- MODIFICATION START HERE --- */}
+          {/* 1. Updated this button to navigate to the new page */}
+          <Button className="sidebar-btn" onClick={() => navigate("/employer/my-internships")}>
             <FaClipboardList /> Internship Applications
           </Button>
+          {/* --- MODIFICATION END HERE --- */}
           <Button className="sidebar-btn">
             <FaPhone /> Support
           </Button>

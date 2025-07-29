@@ -53,14 +53,12 @@ def test_db_connection(db: Session = Depends(get_db)):
     """
     try:
         # Attempt to query the 'users' table
-        # This will fail if the database connection is not established or table doesn't exist
         first_user = db.query(models.User).first()
         if first_user:
             return {"message": "Database connection successful!", "first_user_email": first_user.email}
         else:
             return {"message": "Database connection successful! No users found yet."}
     except Exception as e:
-        # If any error occurs during the database operation, it means the connection failed
         raise HTTPException(status_code=500, detail=f"Database connection failed: {e}")
 # --- END DB TEST ENDPOINT ---
 
@@ -194,10 +192,9 @@ def read_my_student_profile(
     db: Session = Depends(get_db)
 ):
     """Get the current student's profile."""
-    profile = crud.get_student_profile(db, user_id=current_user.id)
-    if profile is None:
+    if not current_user.student_profile:
         raise HTTPException(status_code=404, detail="Student profile not found")
-    return profile
+    return current_user
 
 @app.put("/students/me/profile", response_model=schemas.StudentProfileResponse)
 def update_my_student_profile(
@@ -209,22 +206,22 @@ def update_my_student_profile(
     profile = crud.update_student_profile(db, user_id=current_user.id, profile_update=profile_update)
     if profile is None:
         raise HTTPException(status_code=404, detail="Student profile not found")
-    return profile
+    db.refresh(current_user)
+    return current_user
 
 @app.get("/applicants/{user_id}/profile", response_model=schemas.StudentProfileResponse)
 def read_applicant_profile(
     user_id: int,
-    current_user: models.User = Depends(auth.get_current_active_employer), # Only employers can view applicant profiles
+    current_user: models.User = Depends(auth.get_current_active_employer),
     db: Session = Depends(get_db)
 ):
     """Get a specific applicant's profile by user ID (Employer only)."""
     user = crud.get_user(db, user_id=user_id)
     if not user or user.role != "student":
         raise HTTPException(status_code=404, detail="Applicant (student) not found")
-    profile = crud.get_student_profile(db, user_id=user_id)
-    if profile is None:
+    if not user.student_profile:
         raise HTTPException(status_code=404, detail="Student profile not found for this applicant")
-    return profile
+    return user
 
 
 # --- Employer Profile Management ---
@@ -333,7 +330,7 @@ def read_employer_internships(
 @app.post("/internships/{internship_id}/apply", response_model=schemas.ApplicationResponse, status_code=status.HTTP_201_CREATED)
 def apply_for_internship(
     internship_id: int,
-    application: schemas.ApplicationBase, # Uses base for cover_letter and initial status
+    application: schemas.ApplicationBase,
     current_user: models.User = Depends(auth.get_current_active_student),
     db: Session = Depends(get_db)
 ):
@@ -342,7 +339,6 @@ def apply_for_internship(
     if not internship:
         raise HTTPException(status_code=404, detail="Internship not found")
 
-    # Create a new ApplicationCreate schema with the internship_id
     application_create_data = schemas.ApplicationCreate(
         internship_id=internship_id,
         cover_letter=application.cover_letter,
@@ -394,7 +390,6 @@ def update_application_status(
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
 
-    # Ensure the employer owns the internship associated with this application
     internship = crud.get_internship(db, internship_id=application.internship_id)
     if not internship or internship.employer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this application's status")
@@ -410,15 +405,12 @@ def get_hired_interns(
     db: Session = Depends(get_db)
 ):
     """Get a list of interns hired by the current employer."""
-    # This assumes 'hired' is a status in the Application model
-    # We need to get applications for the employer's internships that are 'hired'
     employer_internships = crud.get_internships(db, employer_id=current_user.id)
     hired_applications = []
     for internship in employer_internships:
         applications = crud.get_applications_by_internship(db, internship_id=internship.id)
         hired_applications.extend([app for app in applications if app.status == "hired"])
 
-    # Basic pagination for the combined list
     return hired_applications[skip : skip + limit]
 
 # --- Admin Internship Management (Admin Only) ---

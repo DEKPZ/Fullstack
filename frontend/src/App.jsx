@@ -9,7 +9,7 @@ import About from "./pages/About";
 import RegisterStudent from "./pages/RegisterStudent";
 import RegisterEmployer from "./pages/RegisterEmployer";
 import Login from "./pages/Login";
-import Contact from "./pages/contact";
+import Contact from "./pages/Contact"; // Corrected capitalization
 import Internships from "./pages/Internships";
 import InternshipDetail from "./pages/InternshipDetail";
 import InternsDashboard from "./pages/InternsDashboard";
@@ -24,7 +24,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ApplicantProfile from "./pages/ApplicantProfile";
 import ManageUsers from "./pages/ManageUsers";
 import ManageInternships from "./pages/ManageInternships";
-import ProfilePage from "./pages/ProfilePage"; // This import was already correct
+import ProfilePage from "./pages/ProfilePage";
+import MyInternships from "./pages/MyInternships"; // 1. Import the new page component
 import NotFound from "./pages/NotFound";
 import "./App.css";
 
@@ -49,20 +50,13 @@ const App = () => {
           <Route path="/build-resume" element={<BuildResume />} />
           <Route path="/apply/:id" element={<ApplyPage />} />
           <Route path="/privacy" element={<Privacy />} />
-          
-          {/* --- MODIFICATIONS START HERE --- */}
-
-          {/* 1. Added a route for the general profile page */}
           <Route path="/profile" element={<ProfilePage />} />
-
-          {/* 2. Updated the applicants route to accept an internshipId */}
           <Route path="/view-applicants/:internshipId" element={<ViewApplicants />} />
-          
-          {/* 3. Updated the applicant profile route to accept an applicantId */}
           <Route path="/applicant/:applicantId" element={<ApplicantProfile />} />
           
-          {/* --- MODIFICATIONS END HERE --- */}
-          
+          {/* 2. Add the new route for employers to see their internships */}
+          <Route path="/employer/my-internships" element={<MyInternships />} />
+
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<ManageUsers />} />
           <Route path="/admin/internships" element={<ManageInternships />} />
