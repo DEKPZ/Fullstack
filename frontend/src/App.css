@@ -1,2 +1,11 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min';
+/* --- ADD THESE STYLES FOR THE LAYOUT FIX --- */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-wrap {
+  flex: 1; /* This is the key part: it makes the main content grow to fill available space */
+}
+/* --- END OF NEW STYLES --- */
