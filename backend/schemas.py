@@ -6,6 +6,51 @@ from datetime import datetime
 
 # --- User Schemas ---
 
+# Pydantic models
+class PersonalInfo(BaseModel):
+    fullName: str
+    email: str
+    phone: str
+    githubLink: Optional[str] = ""
+    linkedinProfile: Optional[str] = ""
+
+class Education(BaseModel):
+    degree: str
+    college: str
+    cgpa: str
+    startDate: str
+    endDate: str
+
+class Project(BaseModel):
+    id: str
+    title: str
+    description: str
+    techStack: List[str]
+    githubLink: Optional[str] = ""
+
+class Experience(BaseModel):
+    id: str
+    role: str
+    company: str
+    startDate: str
+    endDate: str
+    responsibilities: List[str]
+
+class Certification(BaseModel):
+    id: str
+    name: str
+    institution: str
+    year: str
+
+class ResumeData(BaseModel):
+    personalInfo: PersonalInfo
+    objective: str
+    education: List[Education]
+    projects: List[Project]
+    experience: List[Experience]
+    skills: List[str]
+    certifications: List[Certification]
+
 class UserBase(BaseModel):
     """Base schema for user data."""
     email: EmailStr

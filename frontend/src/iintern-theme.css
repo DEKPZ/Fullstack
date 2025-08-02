@@ -1,0 +1,15 @@
+/* Custom utility classes for I-Intern visual identity */
+
+.bg-primary-teal { background-color: #1F7368; }
+.bg-accent-teal { background-color: #63D7C7; }
+.bg-dark-teal { background-color: #004F4D; }
+.bg-cream { background-color: #FFFAF3; }
+.bg-aqua { background-color: #B3EDEB; }
+.bg-highlight { background-color: #FFD187; }
+.text-neutral { color: #181C19; }
+
+.border-primary-teal { border-color: #1F7368; }
+.border-accent-teal { border-color: #63D7C7; }
+.border-dark-teal { border-color: #004F4D; }
+
+/* Example usage: <div class="bg-primary-teal text-neutral"> */
