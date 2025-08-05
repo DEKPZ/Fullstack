@@ -1,12 +1,13 @@
-/* --- TAILWIND SETUP --- */
+/* 1. All @import statements MUST come first. */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
+
+/* 2. Tailwind directives MUST come after imports and before your custom styles. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- ALL OTHER IMPORTS MUST BE BELOW TAILWIND --- */
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
-
+/* 3. All your custom styles, layers, and overrides come LAST. */
 
 /* --- CUSTOM STYLES & ANIMATIONS --- */
 @layer utilities {
