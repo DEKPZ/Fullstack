@@ -419,3 +419,26 @@ export const fetchUserById = async (userId) => {
     throw error;
   }
 };
+
+// src/api.js
+// ... existing imports and functions
+
+export const requestPasswordReset = async (emailData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/forgot-password`, emailData);
+    return response.data;
+  } catch (error) {
+    console.error('Error requesting password reset:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const resetPassword = async (resetData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/reset-password`, resetData);
+    return response.data;
+  } catch (error) {
+    console.error('Error resetting password:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};

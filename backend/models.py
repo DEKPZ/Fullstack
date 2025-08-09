@@ -5,6 +5,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
+from sqlalchemy import Column, Integer, String, DateTime, func
+from datetime import datetime, timedelta
+
 class User(Base):
     """
     SQLAlchemy model for the 'users' table.
@@ -30,6 +33,11 @@ class User(Base):
     employer_profile = relationship("EmployerProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     internships_posted = relationship("Internship", back_populates="employer", cascade="all, delete-orphan")
     applications = relationship("Application", back_populates="student", cascade="all, delete-orphan")
+
+    # ... existing columns
+    otp = Column(String, nullable=True)
+    otp_expires_at = Column(DateTime(timezone=True), nullable=True)
+    # ... rest of the model
 
 class StudentProfile(Base):
     """

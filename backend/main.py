@@ -4,6 +4,14 @@
 # ... your existing imports like FastAPI, Depends, etc.
 import io
 import weasyprint
+
+from datetime import timezone
+
+import random
+import string
+from mail import send_otp_email
+from datetime import datetime
+
 from jinja2 import Template
 from fastapi.responses import Response
 
@@ -13,6 +21,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from typing import List, Optional
+
 
 # Changed relative imports to absolute imports
 import models, schemas, crud, auth
@@ -830,3 +839,44 @@ def delete_internship_by_admin(
     if not success:
         raise HTTPException(status_code=404, detail="Internship not found")
     return {"message": "Internship deleted successfully"}
+
+
+# backend/main.py
+# ... existing imports
+import random
+import string
+from mail import send_otp_email
+from datetime import datetime
+
+# ... existing code
+
+def generate_otp(length: int = 6):
+    """Generate a random OTP."""
+    characters = string.digits
+    return "".join(random.choice(characters) for _ in range(length))
+
+@app.post("/forgot-password")
+async def forgot_password(request: schemas.ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=request.email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    otp = generate_otp()
+    crud.set_user_otp(db, user=user, otp=otp)
+
+    await send_otp_email(email=user.email, otp=otp)
+    return {"message": "OTP sent to your email address."}
+
+
+@app.post("/reset-password")
+def reset_password(request: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=request.email)
+
+    if not user or user.otp != request.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+
+    if user.otp_expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="OTP has expired")
+
+    crud.reset_user_password(db, user=user, new_password=request.new_password)
+    return {"message": "Password has been reset successfully."}

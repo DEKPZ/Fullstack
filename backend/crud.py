@@ -1,5 +1,9 @@
 # backend/crud.py
 
+from datetime import datetime, timedelta
+
+from datetime import timezone
+
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 # Changed relative imports to absolute imports
@@ -235,3 +239,23 @@ def delete_application(db: Session, application_id: int):
         db.commit()
         return True
     return False
+
+def set_user_otp(db: Session, user: models.User, otp: str):
+    """Sets the OTP and expiration for a user."""
+    user.otp = otp
+    user.otp_expires_at = datetime.now(timezone.utc) + timedelta(minutes=10) # OTP valid for 10 minutes
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+def reset_user_password(db: Session, user: models.User, new_password: str):
+    """Resets the user's password."""
+    user.hashed_password = get_password_hash(new_password)
+    user.otp = None
+    user.otp_expires_at = None
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+

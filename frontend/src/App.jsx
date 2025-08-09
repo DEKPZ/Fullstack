@@ -27,6 +27,9 @@ import ProfilePage from "./pages/ProfilePage";
 import MyInternships from "./pages/MyInternships";
 import NotFound from "./pages/NotFound";
 import "./App.css";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+
 
 // Import the Chat Widget component
 import ChatWidget from './components/ChatWidget';
@@ -61,6 +64,8 @@ const App = () => {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<ManageUsers />} />
             <Route path="/admin/internships" element={<ManageInternships />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

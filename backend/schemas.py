@@ -231,3 +231,11 @@ class LoginRequest(BaseModel):
     """Schema for user login request."""
     email: EmailStr
     password: str
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
