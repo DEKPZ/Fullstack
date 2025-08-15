@@ -5,7 +5,22 @@
 import io
 import weasyprint
 
+import re
+
+import os
+
+from mail import send_registration_email
+
+
+
+from datetime import datetime, timedelta, timezone
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+
+
 from datetime import timezone
+from auth import get_current_user, create_access_token, get_password_hash, ACCESS_TOKEN_EXPIRE_MINUTES
+
 
 import random
 import string
@@ -32,6 +47,8 @@ from database import engine, Base, get_db # Base is imported here for metadata.c
 # This line will attempt to connect to the database and create tables if they don't exist.
 Base.metadata.create_all(bind=engine)
 
+ACCESS_TOKEN_EXPIRE_MINUTES = 30 
+
 app = FastAPI(
     title="iIntern Darling Backend API",
     description="API for managing internships, students, employers, and applications.",
@@ -54,6 +71,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+def is_strong_password(password: str):
+    """
+    Checks if a password meets the strength requirements:
+    - At least 8 characters
+    - Contains at least one uppercase letter
+    - Contains at least one lowercase letter
+    - Contains at least one number
+    - Contains at least one special character
+    """
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
+    if not re.search(r"[A-Z]", password):
+        return False, "Password must contain an uppercase letter."
+    if not re.search(r"[a-z]", password):
+        return False, "Password must contain a lowercase letter."
+    if not re.search(r"[0-9]", password):
+        return False, "Password must contain a number."
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+        return False, "Password must contain a special character."
+    return True, "Password is strong."
+
+
+
 
 # --- Integrated HTML Template for Resume Generation ---
 HTML_TEMPLATE = """
@@ -880,3 +921,80 @@ def reset_password(request: schemas.ResetPasswordRequest, db: Session = Depends(
 
     crud.reset_user_password(db, user=user, new_password=request.new_password)
     return {"message": "Password has been reset successfully."}
+
+# === STEP 1: REQUEST OTP ===
+
+
+# === STEP 2: VERIFY AND COMPLETE REGISTRATION ===
+@app.post("/verify-and-register", response_model=schemas.Token)
+def verify_and_register(verification_data: schemas.UserVerify, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=verification_data.email)
+
+    # Validate OTP
+    if not user or user.otp != verification_data.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    if user.otp_expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="OTP has expired")
+
+    # Activate user
+    crud.verify_user(db, user=user)
+
+    # Create and return access token for immediate login
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/request-register-otp", status_code=200)
+async def request_registration_otp(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
+    # 1. Validate Password Strength
+    is_strong, message = is_strong_password(user_data.password)
+    if not is_strong:
+        raise HTTPException(status_code=400, detail=message)
+
+    # 2. Check if user exists
+    db_user = crud.get_user_by_email(db, email=user_data.email)
+    if db_user and db_user.is_verified:
+        raise HTTPException(status_code=400, detail="Email already registered and verified.")
+
+    # 3. Create or update the unverified user
+    if not db_user:
+        crud.create_user(db=db, user=user_data, is_verified=False)
+    else:
+        crud.update_unverified_user(db=db, user_data=user_data)
+
+    # 4. Send OTP
+    user_to_verify = crud.get_user_by_email(db, email=user_data.email)
+    otp = generate_otp()
+    crud.set_user_otp(db, user=user_to_verify, otp=otp)
+
+    # 5. Await the new email function
+    print(f"Attempting to send registration OTP to {user_data.email}")
+    await send_registration_email(email=user_data.email, otp=otp)
+    print("Registration OTP email sent successfully.")
+    
+    
+    return {"message": "Verification OTP sent to your email. It will expire in 10 minutes."}
+
+
+# === STEP 2: VERIFY AND COMPLETE REGISTRATION ===
+@app.post("/verify-and-register", response_model=schemas.Token)
+def verify_and_register(verification_data: schemas.UserVerify, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=verification_data.email)
+
+    # Validate OTP
+    if not user or user.otp != verification_data.otp:
+        raise HTTPException(status_code=400, detail="Invalid OTP")
+    if user.otp_expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="OTP has expired")
+
+    # Activate user
+    crud.verify_user(db, user=user)
+
+    # Create and return access token for immediate login
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}

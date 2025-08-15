@@ -442,3 +442,24 @@ export const resetPassword = async (resetData) => {
     throw error;
   }
 };
+
+export const requestRegisterOTP = async (userData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/request-register-otp`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error requesting register OTP:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const verifyAndRegister = async (verificationData) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/verify-and-register`, verificationData);
+    localStorage.setItem('accessToken', response.data.access_token);
+    return response.data;
+  } catch (error) {
+    console.error('Error verifying and registering:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};

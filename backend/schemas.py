@@ -3,6 +3,9 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from datetime import datetime
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional, List
+from datetime import datetime
 
 # --- User Schemas ---
 
@@ -239,3 +242,7 @@ class ResetPasswordRequest(BaseModel):
     email: EmailStr
     otp: str
     new_password: str
+
+class UserVerify(BaseModel):
+    email: EmailStr
+    otp: str

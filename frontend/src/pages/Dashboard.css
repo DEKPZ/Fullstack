@@ -1,0 +1,152 @@
+/* -------------------------
+   Global Styles
+   ------------------------- */
+body {
+  margin: 0;
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.dashboard {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* -------------------------
+   Card Styles
+   ------------------------- */
+.card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: #343a40;
+}
+
+/* -------------------------
+   Button Styles
+   ------------------------- */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  background-color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn.primary {
+  background-color: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.btn.primary.large {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background-color: #3498db;
+  border-color: #3498db;
+}
+
+/* For text-style buttons like 'Edit', 'Save', 'Apply' */
+.btn-text {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-weight: 500;
+}
+.btn-text.small {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+
+/* -------------------------
+   Component-Specific Styles
+   ------------------------- */
+
+/* Profile Card */
+.profile-body { padding: 1.5rem; text-align: center; }
+.avatar { width: 80px; height: 80px; margin: 0 auto 1rem; border-radius: 50%; overflow: hidden; }
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #e9ecef; font-size: 2.5rem; font-weight: bold; color: #495057; }
+.profile-info h3 { margin-top: 0; margin-bottom: 0.25rem; }
+.skill-list { display: flex; gap: 0.5rem; justify-content: center; margin: 1rem 0; }
+.chip { background-color: #e9ecef; padding: 0.3rem 0.8rem; border-radius: 16px; font-size: 0.85rem; }
+.profile-actions { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }
+
+/* Offers Card */
+.offers-body { padding: 1rem 1.5rem; }
+.offer-item { display: flex; justify-content: space-between; align-items: center; }
+.offer-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+.offer-actions .btn { width: 80px; text-align: center; padding: 0.4rem; }
+.offer-actions .btn.primary { background-color: #28a745; border-color: #28a745; } /* Green from image */
+
+/* Welcome Card */
+.welcome-card .card-header h2 { font-weight: normal; }
+.welcome-body { display: flex; align-items: center; justify-content: space-around; padding: 2rem; gap: 1rem; }
+.credits-display { text-align: center; }
+.credits-number { font-size: 3.5rem; font-weight: bold; color: #3498db; }
+.credits-label { font-size: 1rem; color: #6c757d; margin: -0.5rem 0 0.5rem; }
+.credits-usage { font-size: 0.85rem; color: #adb5bd; margin-bottom: 1rem; }
+.credits-display .btn.primary { background-color: #1abc9c; border-color: #1abc9c; } /* Teal from image */
+.credits-chart { width: 140px; height: 140px; } /* This ensures the chart renders */
+.progress-label { font-size: 2rem; font-weight: bold; fill: #343a40; }
+.welcome-actions { padding: 0 1.5rem 1.5rem; text-align: center; display: flex; justify-content: center; gap: 1rem; }
+.welcome-actions .btn.primary { background-color: #3498db; border-color: #3498db; }
+
+/* Application Tracker */
+.tracker-body { padding: 1rem; }
+.apps-list { list-style: none; padding: 0; margin: 0; }
+.app-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #f1f3f5; }
+.app-item:last-child { border-bottom: none; }
+.app-main .status-badge { font-size: 0.8rem; color: #6c757d; margin-top: 0.25rem; }
+.app-actions { display: flex; gap: 1rem; }
+
+/* Internship Search */
+.search-body { padding: 1.5rem; }
+.search-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.search-bar input { flex-grow: 1; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 8px; }
+.search-bar .btn { flex-shrink: 0; }
+.filters { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+.filters input { width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 8px; }
+.rec-list { list-style: none; padding: 0; margin: 0; }
+.rec-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f1f3f5; }
+.rec-item:last-child { border-bottom: none; }
+.rec-actions { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+
+/* Utility */
+.muted { color: #6c757d !important; }
+.muted.small { font-size: 0.9rem; }
+.muted.tiny { font-size: 0.8rem; }
+strong { font-weight: 600; color: #343a40; }
+.muted-text { text-align: center; padding: 2rem; color: #6c757d; }

@@ -29,7 +29,7 @@ import NotFound from "./pages/NotFound";
 import "./App.css";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-
+import VerifyEmail from "./pages/VerifyEmail";
 
 // Import the Chat Widget component
 import ChatWidget from './components/ChatWidget';
@@ -66,6 +66,7 @@ const App = () => {
             <Route path="/admin/internships" element={<ManageInternships />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

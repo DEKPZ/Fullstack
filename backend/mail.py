@@ -28,3 +28,16 @@ async def send_otp_email(email: str, otp: str):
         subtype="html"
     )
     await fm.send_message(message)
+
+async def send_registration_email(email: str, otp: str):
+    message = MessageSchema(
+        subject="Welcome to I-Intern! Verify Your Email",
+        recipients=[email],
+        body=f"""
+        <p>Thank you for registering with I-Intern!</p>
+        <p>Your One-Time Password (OTP) to verify your account is: <strong>{otp}</strong></p>
+        <p>This OTP is valid for 10 minutes.</p>
+        """,
+        subtype="html"
+    )
+    await fm.send_message(message)

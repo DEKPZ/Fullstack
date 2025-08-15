@@ -1,0 +1,77 @@
+.welcome-card {
+  background: #f7fbfc;
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(96,150,180,0.08);
+  padding: 2.5rem 2rem 2rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.welcome-card .card-header {
+  border-bottom: 1px solid #e3eaf2;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.welcome-body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2.5rem;
+  justify-content: center;
+}
+
+.welcome-card .credits-box {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  padding: 2rem 3rem;
+  text-align: center;
+  min-width: 220px;
+}
+
+.welcome-card .credits-box .credits-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #6096B4;
+}
+
+.welcome-card .credits-box .credits-label {
+  font-size: 1.1rem;
+  color: #7a7a7a;
+  margin-bottom: 0.5rem;
+}
+
+.welcome-card .credits-box .credits-monthly {
+  font-size: 0.95rem;
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.welcome-card .credits-box .btn.primary {
+  margin-top: 0.5rem;
+}
+
+.welcome-card .progress-chart {
+  width: 220px;
+  height: 220px;
+}
+
+.welcome-actions {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .welcome-body {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .welcome-card .credits-box {
+    padding: 1.5rem 1.5rem;
+    min-width: 180px;
+  }
+  .welcome-card .progress-chart {
+    width: 180px;
+    height: 180px;
+  }
+}

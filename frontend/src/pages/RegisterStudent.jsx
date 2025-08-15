@@ -5,7 +5,7 @@ import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { User, Mail, Lock, MapPin, GraduationCap, Calendar, Phone, Globe } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { registerStudent } from '../api'; // Import your API function
+import { requestRegisterOTP } from '../api'; // Corrected: Only one import is needed
 import './RegisterStudent.css';
 
 const RegisterStudent = () => {
@@ -42,6 +42,7 @@ const RegisterStudent = () => {
     }
   };
 
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -53,7 +54,21 @@ const RegisterStudent = () => {
     if (!formData.pincode.trim()) newErrors.pincode = 'Pincode is required';
     if (!formData.country.trim()) newErrors.country = 'Country is required';
     if (!formData.email.trim()) newErrors.email = 'Email is required';
-    if (!formData.password) newErrors.password = 'Password is required';
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else {
+      if (formData.password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters long.';
+      } else if (!/[A-Z]/.test(formData.password)) {
+        newErrors.password = 'Password must contain an uppercase letter.';
+      } else if (!/[a-z]/.test(formData.password)) {
+        newErrors.password = 'Password must contain a lowercase letter.';
+      } else if (!/[0-9]/.test(formData.password)) {
+        newErrors.password = 'Password must contain a number.';
+      } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password)) {
+        newErrors.password = 'Password must contain a special character.';
+      }
+    }
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
 
     if (formData.password && formData.password.length < 6) {
@@ -93,14 +108,13 @@ const RegisterStudent = () => {
         phone_number: formData.mobileNumber,
         address: `${formData.pincode}, ${formData.country}`, // Combining for simplicity
         role: 'student'
-        // You can add other fields here if your UserCreate schema accepts them
       };
 
-      await registerStudent(userData);
+      await requestRegisterOTP(userData);
 
-      // On success, show a message and redirect to login
-      alert('Registration successful! Please log in.');
-      navigate('/login');
+      // On success, show a message and redirect to the verification page
+      alert('Registration successful! Please check your email for an OTP to verify your account.');
+      navigate('/verify-email', { state: { email: formData.email, role: 'student', userData: userData } });
 
     } catch (error) {
       console.error('Registration error:', error);
@@ -155,7 +169,6 @@ const RegisterStudent = () => {
             onSubmit={handleSubmit}
             variants={itemVariants}
           >
-            {/* Form fields remain the same */}
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">

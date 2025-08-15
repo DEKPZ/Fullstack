@@ -27,7 +27,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100, role: str = None):
         query = query.filter(models.User.role == role)
     return query.offset(skip).limit(limit).all()
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: schemas.UserCreate, is_verified: bool = False):
     """Create a new user with a hashed password and associated profile."""
     hashed_password = get_password_hash(user.password)
     db_user = models.User(
@@ -39,7 +39,8 @@ def create_user(db: Session, user: schemas.UserCreate):
         phone_number=user.phone_number,
         address=user.address,
         bio=user.bio,
-        profile_picture_url=user.profile_picture_url
+        profile_picture_url=user.profile_picture_url,
+        is_verified=is_verified        
     )
     db.add(db_user)
     db.commit()
@@ -60,6 +61,19 @@ def create_user(db: Session, user: schemas.UserCreate):
         db.add(db_employer_profile)
     db.commit()
     db.refresh(db_user) # Refresh again to load the relationship if needed
+    return db_user
+
+def update_unverified_user(db: Session, user_data: schemas.UserCreate): # NEW FUNCTION
+    """Updates user details for an unverified user."""
+    db_user = get_user_by_email(db, email=user_data.email)
+    if db_user:
+        db_user.hashed_password = get_password_hash(user_data.password)
+        db_user.first_name = user_data.first_name
+        db_user.last_name = user_data.last_name
+        db_user.phone_number = user_data.phone_number
+        db_user.address = user_data.address
+        db.commit()
+        db.refresh(db_user)
     return db_user
 
 def update_user(db: Session, user_id: int, user_update: schemas.UserUpdate):
@@ -252,6 +266,16 @@ def set_user_otp(db: Session, user: models.User, otp: str):
 def reset_user_password(db: Session, user: models.User, new_password: str):
     """Resets the user's password."""
     user.hashed_password = get_password_hash(new_password)
+    user.otp = None
+    user.otp_expires_at = None
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+def verify_user(db: Session, user: models.User):
+    """Marks a user as verified."""
+    user.is_verified = True
     user.otp = None
     user.otp_expires_at = None
     db.add(user)
