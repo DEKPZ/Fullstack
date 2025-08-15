@@ -769,6 +769,18 @@ def read_employer_internships(
     return internships
 
 # --- Application Management ---
+def get_current_user_with_refill(db: Session = Depends(get_db), current_user: models.User = Depends(auth.get_current_user)):
+    """
+    Checks if the user's free credits should be refilled and does so if needed.
+    """
+    if not current_user.is_premium and current_user.role == 'student':
+        # Check if it has been more than 30 days since the last refill
+        if current_user.last_credit_refill < datetime.now(timezone.utc) - timedelta(days=30):
+            current_user.credits = 5
+            current_user.last_credit_refill = datetime.now(timezone.utc)
+            db.commit()
+            db.refresh(current_user)
+    return current_user
 
 @app.post("/internships/{internship_id}/apply", response_model=schemas.ApplicationResponse, status_code=status.HTTP_201_CREATED)
 def apply_for_internship(
@@ -778,9 +790,21 @@ def apply_for_internship(
     db: Session = Depends(get_db)
 ):
     """Student applies for an internship."""
+    if current_user.role != 'student':
+        raise HTTPException(status_code=403, detail="Only students can apply for internships.")
+
+
     internship = crud.get_internship(db, internship_id=internship_id)
     if not internship:
         raise HTTPException(status_code=404, detail="Internship not found")
+    
+     # Credit check logic
+    if not current_user.is_premium:
+        if current_user.credits < 1:
+            raise HTTPException(status_code=403, detail="You do not have enough credits to apply.")
+        current_user.credits -= 1
+        db.commit()
+        db.refresh(current_user)
 
     application_create_data = schemas.ApplicationCreate(
         internship_id=internship_id,
@@ -836,9 +860,34 @@ def update_application_status(
     internship = crud.get_internship(db, internship_id=application.internship_id)
     if not internship or internship.employer_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this application's status")
+    
+    # Credit deduction for accepting an offer (when status is 'hired')
+    if new_status.lower() == 'hired':
+        student = crud.get_user(db, user_id=application.student_id)
+        if student and not student.is_premium:
+            if student.credits < 1:
+                raise HTTPException(status_code=403, detail="The student does not have enough credits to accept this offer.")
+            student.credits -= 1
+            db.commit()
 
     updated_application = crud.update_application_status(db, application_id=application_id, new_status=new_status)
     return updated_application
+
+@app.post("/users/me/top-up-credits", response_model=schemas.UserResponse)
+def top_up_credits(
+    current_user: models.User = Depends(get_current_user_with_refill),
+    db: Session = Depends(get_db)
+):
+    """
+    Simulates a top-up of 2 credits for the current user.
+    """
+    if current_user.role != 'student':
+        raise HTTPException(status_code=403, detail="Only students can top-up credits.")
+
+    current_user.credits += 2
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 @app.get("/hired-interns", response_model=List[schemas.ApplicationResponse])
 def get_hired_interns(

@@ -27,7 +27,10 @@ class User(Base):
     profile_picture_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-    is_verified = Column(Boolean, default=False) # Add this line
+    is_verified = Column(Boolean, default=False)
+    credits = Column(Integer, default=5)
+    is_premium = Column(Boolean, default=False)
+    last_credit_refill = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     student_profile = relationship("StudentProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
