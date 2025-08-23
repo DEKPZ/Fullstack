@@ -69,6 +69,7 @@ const RegisterStudent = () => {
         newErrors.password = 'Password must contain a special character.';
       }
     }
+    
     if (!formData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
 
     if (formData.password && formData.password.length < 6) {

@@ -25,6 +25,7 @@ const InternsDashboard = () => {
     const [stats, setStats] = useState({ credits: 5 }); // Can be dynamic later
     const [favorites, setFavorites] = useState([]);
     const [searchFilters, setSearchFilters] = useState({ q: "", location: "", role: "", duration: "" });
+    const [credits, setCredits] = useState(0);
 
     const navigate = useNavigate();
 
@@ -52,6 +53,7 @@ const InternsDashboard = () => {
                 };
                 setUser(combinedUser);
                 setProfile(profileData);
+                setCredits(userData.credits);
 
                 // Fetch full details for each application's internship
                 const applicationsWithDetails = await Promise.all(
@@ -74,6 +76,24 @@ const InternsDashboard = () => {
         };
         fetchData();
     }, []);
+    const handleTopUp = async () => {
+        try {
+            const updatedUser = await axios.post(
+                `${API_BASE_URL}/users/me/top-up-credits`,
+                {},
+                {
+                    headers: {
+                        Authorization: `Bearer ${getAuthToken()}`,
+                    },
+                }
+            );
+            setCredits(updatedUser.data.credits);
+            alert('You have successfully topped up 2 credits!');
+        } catch (error) {
+            console.error('Error topping up credits:', error);
+            alert('Failed to top up credits. Please try again.');
+        }
+    };
 
     // --- Render Logic ---
     if (loading) return <div className="loading-state"><h1>Loading Dashboard...</h1></div>;
@@ -98,7 +118,7 @@ const InternsDashboard = () => {
 
                 <section className="middle-column" aria-label="Overview and Applications">
                     {/* Pass fetched user name and application data */}
-                    <WelcomeOverview stats={stats} userName={user?.name || "Intern"} />
+                    <WelcomeOverview stats={stats} userName={user?.name || "Intern"} credits={credits} onTopUp={handleTopUp} />
                     <InternshipApplicationTracker applications={applications} setApplications={setApplications} />
                 </section>
 
@@ -201,7 +221,7 @@ function OffersSection() {
 }
 
 // Welcome Overview Card (receives real data)
-function WelcomeOverview({ stats, userName }) {
+function WelcomeOverview({ stats, userName, credits, onTopUp }) {
     const monthlyLimit = 5;
     const creditsLeft = stats.credits ?? 0;
     const creditsUsed = monthlyLimit - creditsLeft;

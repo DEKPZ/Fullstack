@@ -91,6 +91,8 @@ class UserResponse(UserBase):
     role: str
     created_at: datetime
     updated_at: Optional[datetime] = None
+    credits: int
+    is_premium: bool
 
     class Config:
         from_attributes = True
