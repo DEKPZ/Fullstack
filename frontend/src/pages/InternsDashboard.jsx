@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, RadialBarChart, RadialBar } from "recharts";
+import { Alert, Button, Badge } from "react-bootstrap";
 // API functions to fetch real data from the backend
 import {
     fetchCurrentUser,
     fetchMyStudentProfile,
     fetchMyApplications,
-    fetchInternships,
-    fetchInternshipDetail
+    fetchRecommendedInternships, // Changed from fetchInternships
+    fetchInternshipDetail,
+    applyToInternship,
 } from "../api";
 import "./Dashboard.css";
 
@@ -26,6 +28,9 @@ const InternsDashboard = () => {
     const [favorites, setFavorites] = useState([]);
     const [searchFilters, setSearchFilters] = useState({ q: "", location: "", role: "", duration: "" });
     const [credits, setCredits] = useState(0);
+    const [offers, setOffers] = useState([]);
+    const [ongoingInternships, setOngoingInternships] = useState([]);
+    const [otherApplications, setOtherApplications] = useState([]);
 
     const navigate = useNavigate();
 
@@ -36,11 +41,11 @@ const InternsDashboard = () => {
             setError(null);
             try {
                 // Fetch all data in parallel for faster loading
-                const [userData, profileData, applicationsData, internshipsData] = await Promise.all([
+                const [userData, profileData, applicationsData, recommendationsData] = await Promise.all([
                     fetchCurrentUser(),
                     fetchMyStudentProfile(),
                     fetchMyApplications(),
-                    fetchInternships() // For recommendations
+                    fetchRecommendedInternships() // Fetch personalized recommendations
                 ]);
 
                 // Combine user and profile data for the ProfileCard
@@ -64,8 +69,8 @@ const InternsDashboard = () => {
                 );
                 setApplications(applicationsWithDetails);
 
-                // Use the first few internships as recommendations
-                setRecommendedInternships(internshipsData.slice(0, 5));
+                // Set the fetched recommendations directly
+                setRecommendedInternships(recommendationsData);
 
             } catch (err) {
                 console.error("Dashboard fetch error:", err);
@@ -104,7 +109,7 @@ const InternsDashboard = () => {
             <main className="dashboard-grid" role="main">
                 <section className="left-column" aria-label="Profile and Offers">
                     {/* Pass the fetched user data to the profile card */}
-                    <ProfileCard user={user} setUser={setUser} />
+                    <ProfileCard user={user} />
                     <div style={{ textAlign: 'center', margin: '1.5rem 0' }}>
                         <button
                             className="btn primary large"
@@ -140,64 +145,77 @@ const InternsDashboard = () => {
 
 /* --- Child Components (Largely unchanged, they now receive real data via props) --- */
 
-// Profile Card with Edit Functionality
-function ProfileCard({ user, setUser }) {
-    // This component now receives the user object with live data
-    const [editing, setEditing] = useState(false);
-    // Initialize form state with the user prop
-    const [form, setForm] = useState(user);
+// --- MODIFICATION START ---
+// Profile Card with Edit Functionality updated to navigate
+function ProfileCard({ user }) {
+    const navigate = useNavigate(); // Hook for navigation
     const fileInputRef = useRef();
-
-    useEffect(() => setForm(user), [user]);
-
-    function handleSave(e) {
-        e.preventDefault();
-        // Here you would call an API to update the user profile
-        // For now, it just updates the local state
-        setUser((prev) => ({ ...prev, ...form }));
-        setEditing(false);
-    }
 
     return (
         <section className="card profile-card" aria-labelledby="profile-title">
             <div className="card-header">
                 <h2 id="profile-title">Profile</h2>
-                <button className="btn-text" onClick={() => setEditing((s) => !s)}>{editing ? "Cancel" : "Edit"}</button>
+                {/* Updated this button to navigate */}
+                <button className="btn-text" onClick={() => navigate('/profile')}>Edit</button>
             </div>
             <div className="profile-body">
                 <div className="avatar">
                     {user?.photo ? <img src={user.photo} alt={user.name} /> : <div className="avatar-placeholder">{user?.name?.[0]}</div>}
                 </div>
-                {editing ? (
-                    <form className="profile-form" onSubmit={handleSave}>
-                        <label>Name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
-                        <label>Email<input type="email" value={form.email} readOnly /></label>
-                        <label>Phone<input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></label>
-                        <button className="btn primary" type="submit">Save Changes</button>
-                    </form>
-                ) : (
-                    <div className="profile-info">
-                        <h3>{user?.name}</h3>
-                        <p className="muted">{user?.email}</p>
-                        <p className="muted">{user?.phone}</p>
-                        <div className="skill-list">
-                            {user?.skills.map((s, i) => <span className="chip" key={i}>{s}</span>)}
-                        </div>
-                        <div className="profile-actions">
-                            <button className="btn" onClick={() => setEditing(true)}>Edit Profile</button>
-                            <button className="btn" onClick={() => fileInputRef.current.click()}>Upload Resume</button>
-                            <input type="file" ref={fileInputRef} onChange={() => alert("Resume upload logic here.")} style={{ display: 'none' }} />
-                        </div>
+                {/* Removed the inline editing form */}
+                <div className="profile-info">
+                    <h3>{user?.name}</h3>
+                    <p className="muted">{user?.email}</p>
+                    <p className="muted">{user?.phone}</p>
+                    <div className="skill-list">
+                        {user?.skills.map((s, i) => <span className="chip" key={i}>{s}</span>)}
                     </div>
-                )}
+                    <div className="profile-actions">
+                        {/* Updated this button to also navigate */}
+                        <button className="btn" onClick={() => navigate('/profile')}>Edit Profile</button>
+                        <button className="btn" onClick={() => fileInputRef.current.click()}>Upload Resume</button>
+                        <input type="file" ref={fileInputRef} onChange={() => alert("Resume upload logic here.")} style={{ display: 'none' }} />
+                    </div>
+                </div>
             </div>
         </section>
     );
 }
+// --- MODIFICATION END ---
+
 
 // Offers Section (static for now)
-function OffersSection() {
-    const offers = [{ id: 101, company: "AI Startup", role: "Frontend Intern", stipend: "20k", duration: "3 months", contact: "hr@aistartup.com" }];
+function OffersSection({ offers = [], onAction }) {
+    
+    const [loadingId, setLoadingId] = useState(null);
+
+    const handleAccept = async (appId) => {
+        setLoadingId(appId);
+        try {
+            await studentUpdateApplicationStatus(appId, 'hired');
+            alert('Offer accepted successfully! It will now appear in "My Internships".');
+            onAction(appId); // Remove from UI
+        } catch (error) {
+            alert('Failed to accept offer. Please try again.');
+        } finally {
+            setLoadingId(null);
+        }
+    };
+    
+    const handleReject = async (appId) => {
+        setLoadingId(appId);
+        try {
+            await studentUpdateApplicationStatus(appId, 'rejected');
+            alert('Offer has been rejected.');
+            onAction(appId); // Remove from UI
+        } catch (error) {
+            alert('Failed to reject offer. Please try again.');
+        } finally {
+            setLoadingId(null);
+        }
+    };
+
+
     return (
         <section className="card offers-card" aria-labelledby="offers-title">
             <div className="card-header"><h2 id="offers-title">Offers</h2></div>
@@ -221,23 +239,51 @@ function OffersSection() {
 }
 
 // Welcome Overview Card (receives real data)
-function WelcomeOverview({ stats, userName, credits, onTopUp }) {
-    const monthlyLimit = 5;
-    const creditsLeft = stats.credits ?? 0;
-    const creditsUsed = monthlyLimit - creditsLeft;
-    const creditScorePercent = Math.round((creditsLeft / monthlyLimit) * 100);
+function WelcomeOverview({ userName, credits, isPremium, premiumExpiresAt, onTopUp, onUpgrade }) {
+    const navigate = useNavigate();
+
+    // Renders the "You are on a premium trial!" banner if applicable
+    const renderTrialBanner = () => {
+        if (isPremium && premiumExpiresAt) {
+            const expiryDate = new Date(premiumExpiresAt).toLocaleDateString("en-US", {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            return (
+                <Alert variant="success" className="mt-3 text-center">
+                    🎉 You are on a Premium trial! Enjoy unlimited applications until **{expiryDate}**.
+                </Alert>
+            );
+        }
+        return null;
+    };
+
+    // Calculates the chart percentage for free users (5 credits = 100%)
+    const creditScorePercent = !isPremium ? Math.round((credits / 5) * 100) : 100;
 
     return (
         <section className="card welcome-card" aria-labelledby="welcome-title">
             <div className="card-header">
                 <h2 id="welcome-title">Welcome back, {userName}!</h2>
             </div>
+            {renderTrialBanner()}
             <div className="welcome-body">
                 <div className="credits-display">
-                    <div className="credits-number">{creditsLeft}</div>
-                    <div className="credits-label">Credits Available</div>
-                    <div className="credits-usage">{creditsUsed}/{monthlyLimit} credits used this month</div>
-                    <button className="btn primary" onClick={() => alert('Top up flow placeholder')}>Top Up</button>
+                    {isPremium ? (
+                        <>
+                            <div className="credits-number">∞</div>
+                            <div className="credits-label">Premium Member</div>
+                            <div className="credits-usage">You have unlimited applications.</div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="credits-number">{credits}</div>
+                            <div className="credits-label">Credits Available</div>
+                            <div className="credits-usage">{credits}/5 credits used this month.</div>
+                            <Button variant="primary" onClick={onTopUp} className="mt-2">
+                                Top Up Credits (₹99)
+                            </Button>
+                        </>
+                    )}
                 </div>
                 <div className="credits-chart">
                     <ResponsiveContainer width="100%" height="100%">
@@ -248,13 +294,19 @@ function WelcomeOverview({ stats, userName, credits, onTopUp }) {
                     </ResponsiveContainer>
                 </div>
             </div>
-            <div className="welcome-actions">
-                <button className="btn primary">View Matches</button>
-                <button className="btn">Get Help</button>
-            </div>
+             {!isPremium && (
+                <div className="welcome-actions">
+                    <Button variant="success" onClick={onUpgrade}>
+                        Upgrade to Premium for ₹199
+                    </Button>
+                </div>
+             )}
         </section>
     );
 }
+
+
+
 
 // Application Tracker Card (receives real data)
 function InternshipApplicationTracker({ applications, setApplications }) {
@@ -290,6 +342,25 @@ function InternshipApplicationTracker({ applications, setApplications }) {
 // Internship Search Card (receives real data)
 function InternshipSearch({ recommendations, favorites, setFavorites, filters, setFilters, loading }) {
     // This component now receives live recommendations
+    const navigate = useNavigate();
+    const [applying, setApplying] = useState(null); // State to track which internship is being applied to
+
+    const handleApply = async (internshipId) => {
+        setApplying(internshipId);
+        try {
+            await applyToInternship(internshipId, {
+                cover_letter: "",
+                status: "pending",
+            });
+            alert("Successfully applied!");
+            // Optionally, you can refresh the applications list here
+        } catch (error) {
+            console.error("Error applying for internship:", error);
+            alert("Failed to apply. You may have already applied for this internship or are out of credits.");
+        } finally {
+            setApplying(null);
+        }
+    };
 
     // Placeholder functions for the new buttons
     const handleSave = (internshipId) => {
@@ -298,10 +369,7 @@ function InternshipSearch({ recommendations, favorites, setFavorites, filters, s
         // For example: setFavorites([...favorites, internshipId]);
     };
 
-    const handleApply = (internshipId) => {
-        alert(`Applying to internship: ${internshipId}`);
-        // Here you can navigate to an application page or call an API
-    };
+    
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -354,13 +422,22 @@ function InternshipSearch({ recommendations, favorites, setFavorites, filters, s
                     {recommendations.map((r) => (
                         <li key={r.id} className="rec-item">
                             <div className="rec-details">
-                                <strong>{r.title}</strong>
-                                <div className="muted small">{r.location} • {r.duration} • ${r.stipend}</div>
+                                <div className="d-flex justify-content-between align-items-start">
+                                    <strong>{r.title}</strong>
+                                    {/* Display match score if available */}
+                                    {r.match_score != null && (
+                                        <Badge bg="success" pill>{r.match_score}% Match</Badge>
+                                    )}
+                                </div>
+                                {/* Correctly display stipend which might be text like "Unpaid" */}
+                                <div className="muted small">{r.location} • {r.duration} • {r.stipend}</div>
                             </div>
                             <div className="rec-actions">
                                 {/* --- START: Added Save and Apply Buttons --- */}
                                 <button className="btn" onClick={() => handleSave(r.id)}>Save</button>
-                                <button className="btn primary" onClick={() => handleApply(r.id)}>Apply</button>
+                                <button className="btn primary" onClick={() => handleApply(r.id)} disabled={applying === r.id}>
+                                    {applying === r.id ? 'Applying...' : 'Apply'}
+                                </button>
                                 {/* --- END: Added Save and Apply Buttons --- */}
                             </div>
                         </li>
@@ -371,4 +448,26 @@ function InternshipSearch({ recommendations, favorites, setFavorites, filters, s
     );
 }
 
-export default InternsDashboard; 
+function OngoingInternshipTracker({ internships }) {
+    return (
+        <section className="card tracker-card" aria-labelledby="ongoing-title">
+            <div className="card-header"><h2 id="ongoing-title">My Internships</h2></div>
+            <div className="tracker-body">
+                {internships.length === 0 ? <div className="muted-text">You have no ongoing internships.</div> : (
+                    <ul className="apps-list">
+                        {internships.map((app) => (
+                            <li key={app.id} className="app-item">
+                                <strong>{app.internship.title}</strong>
+                                <span>Duration: {app.internship.duration}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </div>
+        </section>
+    );
+}
+
+
+
+export default InternsDashboard;

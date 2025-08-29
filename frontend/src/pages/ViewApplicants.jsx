@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Table, Button, Badge, Card, Alert, Spinner } from "react-bootstrap";
+import { Table, Button, Badge, Card, Alert, Spinner, ProgressBar } from "react-bootstrap";
 import {
-  fetchApplicantsForInternship,
+  fetchRecommendedApplicants, // Changed to get ranked applicants
   fetchApplicantProfile,
   updateApplicationStatus
-  // We will no longer use fetchUserById here to avoid the admin endpoint
 } from "../api";
 import "./ViewApplicants.css";
 
@@ -20,8 +19,8 @@ const ViewApplicants = () => {
       if (!internshipId) return;
       try {
         setLoading(true);
-        // 1. Get the list of applications for the internship
-        const applications = await fetchApplicantsForInternship(internshipId);
+        // 1. Get the ranked list of applicants, with match scores included
+        const applications = await fetchRecommendedApplicants(internshipId);
 
         // 2. For each application, fetch only the public-facing applicant profile
         const applicantsWithDetails = await Promise.all(
@@ -29,9 +28,6 @@ const ViewApplicants = () => {
             // Fetch only the profile, which should contain all needed info
             const profile = await fetchApplicantProfile(app.student_id);
             
-            // **FIX:** We now construct the applicant object without calling the admin endpoint.
-            // We assume the profile or the application object itself has enough detail.
-            // Note: Your backend may need to be adjusted to include name/email in the profile endpoint if it doesn't already.
             return {
               ...app,
               name: `${profile.first_name || 'Applicant'} ${profile.last_name || ''}`.trim(), // Assuming name is in profile
@@ -44,8 +40,7 @@ const ViewApplicants = () => {
         setApplicants(applicantsWithDetails);
       } catch (err) {
         console.error("Error fetching applicants:", err);
-        // The error message is updated to be more specific
-        setError("Failed to load applicants. You must be logged in as the employer who posted this internship. Ensure the API provides necessary user details in the profile endpoint.");
+        setError("Failed to load ranked applicants. You must be logged in as the employer who posted this internship.");
       } finally {
         setLoading(false);
       }
@@ -74,13 +69,14 @@ const ViewApplicants = () => {
     return (
       <div className="view-applicants-container">
         <Card className="view-applicants-card">
-          <h2 className="page-title">Applicants for Internship #{internshipId}</h2>
+          <h2 className="page-title">Ranked Applicants for Internship #{internshipId}</h2>
           {error && <Alert variant="danger">{error}</Alert>}
   
           <Table striped bordered hover responsive className="applicants-table">
             <thead>
               <tr>
                 <th>Applicant</th>
+                <th>Match Score</th>
                 <th>Email</th>
                 <th>University</th>
                 <th>Status</th>
@@ -96,6 +92,18 @@ const ViewApplicants = () => {
                       <Link to={`/applicant/${applicant.student_id}`}>
                         {applicant.name}
                       </Link>
+                    </td>
+                    <td>
+                      {applicant.match_score != null ? (
+                        <div className="d-flex align-items-center">
+                          <span className="me-2 fw-bold">{applicant.match_score}%</span>
+                          <ProgressBar 
+                            now={applicant.match_score} 
+                            variant={applicant.match_score > 75 ? 'success' : applicant.match_score > 50 ? 'info' : 'warning'}
+                            style={{ width: '100px' }} 
+                          />
+                        </div>
+                      ) : <span className="text-muted">N/A</span>}
                     </td>
                     <td>{applicant.email}</td>
                     <td>{applicant.university}</td>
@@ -132,7 +140,7 @@ const ViewApplicants = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center">No applicants yet.</td>
+                  <td colSpan="6" className="text-center">No applicants yet.</td>
                 </tr>
               )}
             </tbody>

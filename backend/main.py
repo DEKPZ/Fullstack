@@ -5,6 +5,8 @@
 import io
 import weasyprint
 
+from fastapi import Path 
+
 import re
 
 import os
@@ -39,7 +41,7 @@ from typing import List, Optional
 
 
 # Changed relative imports to absolute imports
-import models, schemas, crud, auth
+import models, schemas, crud, auth, scanner
 from database import engine, Base, get_db # Base is imported here for metadata.create_all
 
 # Create all database tables
@@ -92,6 +94,14 @@ def is_strong_password(password: str):
     if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
         return False, "Password must contain a special character."
     return True, "Password is strong."
+
+def get_current_user_with_premium_check(
+    current_user: models.User = Depends(auth.get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Dependency to get the current user and check for premium expiration."""
+    return crud.check_premium_expiration(db, user=current_user)
+
 
 
 
@@ -454,7 +464,7 @@ def read_users_me(current_user: models.User = Depends(auth.get_current_user)):
 # --- NEW: Integrated Resume Generation Endpoint ---
 @app.post("/generate-resume", response_class=Response)
 async def generate_resume(
-    resume_data: schemas.ResumeData,
+    resume_data: schemas.ResumeData, # Expects ResumeData schema
     current_user: models.User = Depends(auth.get_current_active_student)
 ):
     try:
@@ -469,7 +479,7 @@ async def generate_resume(
             certifications=resume_data.certifications
         )
         pdf_buffer = io.BytesIO()
-        weasyprint.HTML(string=html_content).write_pdf(pdf_buffer)
+        weasyprint.HTML(string=html_content).write_pdf(pdf_buffer) # Creates PDF from HTML template
         pdf_buffer.seek(0)
         return Response(
             content=pdf_buffer.getvalue(),
@@ -667,6 +677,35 @@ def read_applicant_profile(
     return user
 
 
+@app.put("/students/me/applications/{application_id}/status", response_model=schemas.ApplicationResponse)
+def student_update_application_status(
+    application_id: int,
+    new_status: str = Query(..., description="New status: must be 'hired' or 'rejected'"),
+    current_user: models.User = Depends(auth.get_current_active_student),
+    db: Session = Depends(get_db)
+):
+    """
+    Allows a student to accept ('hired') or reject an offer.
+    An offer is an application with the status 'accepted'.
+    """
+    if new_status not in ["hired", "rejected"]:
+        raise HTTPException(status_code=400, detail="Invalid status. Can only be 'hired' or 'rejected'.")
+
+    application = crud.get_application(db, application_id=application_id)
+
+    # Security Checks
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    if application.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to update this application")
+    if application.status != "accepted":
+        raise HTTPException(status_code=400, detail="This application is not in an 'accepted' state to be actioned as an offer.")
+
+    # Update the status
+    updated_application = crud.update_application_status(db, application_id=application_id, new_status=new_status)
+    return updated_application
+
+
 # --- Employer Profile Management ---
 
 @app.get("/employers/me/profile", response_model=schemas.EmployerProfileResponse)
@@ -786,7 +825,7 @@ def get_current_user_with_refill(db: Session = Depends(get_db), current_user: mo
 def apply_for_internship(
     internship_id: int,
     application: schemas.ApplicationBase,
-    current_user: models.User = Depends(auth.get_current_active_student),
+    current_user: models.User = Depends(get_current_user_with_premium_check),
     db: Session = Depends(get_db)
 ):
     """Student applies for an internship."""
@@ -839,7 +878,9 @@ def read_applicants_for_internship(
     internship = crud.get_internship(db, internship_id=internship_id)
     if not internship:
         raise HTTPException(status_code=404, detail="Internship not found")
-    if internship.employer_id != current_user.id:
+    
+    
+    if int(internship.employer_id) != int(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to view applicants for this internship")
 
     applications = crud.get_applications_by_internship(db, internship_id=internship.id, skip=skip, limit=limit)
@@ -858,7 +899,7 @@ def update_application_status(
         raise HTTPException(status_code=404, detail="Application not found")
 
     internship = crud.get_internship(db, internship_id=application.internship_id)
-    if not internship or internship.employer_id != current_user.id:
+    if not internship or int(internship.employer_id) != int(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to update this application's status")
     
     # Credit deduction for accepting an offer (when status is 'hired')
@@ -872,6 +913,155 @@ def update_application_status(
 
     updated_application = crud.update_application_status(db, application_id=application_id, new_status=new_status)
     return updated_application
+
+@app.post("/applications/{application_id}/calculate-score", response_model=schemas.ApplicationResponse)
+def calculate_and_store_match_score(
+    application_id: int,
+    current_user: models.User = Depends(auth.get_current_active_employer),
+    db: Session = Depends(get_db)
+):
+    """
+    Calculates and stores a match score for an application based on student
+    profile and internship requirements. (Employer only)
+    """
+    # 1. Fetch the application and related data
+    application = crud.get_application(db, application_id=application_id)
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+
+    # 2. Authorize the employer by checking internship ownership
+    internship = application.internship
+    if not internship or internship.employer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to calculate score for this application")
+
+    # 3. Fetch the student's profile
+    student = application.student
+    if not student or not student.student_profile:
+        raise HTTPException(status_code=404, detail="Student profile not found for this applicant")
+    
+    # 4. Combine text from student's profile for matching
+    student_text = " ".join(filter(None, [
+        student.student_profile.skills,
+        student.student_profile.experience,
+        student.bio
+    ]))
+
+    # 5. Combine text from internship details for matching
+    internship_text = " ".join(filter(None, [
+        internship.title,
+        internship.description,
+        internship.skills_required,
+        internship.responsibilities,
+        internship.qualifications,
+        internship.job_type
+    ]))
+
+    # 6. Call the scanner, update the score, and return the updated application
+    score = scanner.calculate_match_score(student_text, internship_text)
+    updated_application = crud.update_application_match_score(db, application_id=application_id, score=score)
+    
+    return updated_application
+
+# --- Recommendation Endpoints ---
+
+@app.get("/students/me/recommendations", response_model=List[schemas.InternshipRecommendation])
+def get_student_recommendations(
+    current_user: models.User = Depends(auth.get_current_active_student),
+    db: Session = Depends(get_db)
+):
+    """
+    Get top 10 internship recommendations for the current student based on their profile.
+    """
+    # 1. Get student profile
+    if not current_user.student_profile:
+        raise HTTPException(status_code=404, detail="Student profile not found. Please complete your profile.")
+
+    # 2. Combine student text for matching
+    student_text = " ".join(filter(None, [
+        current_user.student_profile.skills,
+        current_user.student_profile.experience,
+        current_user.student_profile.projects,
+        current_user.student_profile.career_goals,
+        current_user.bio
+    ]))
+    if not student_text.strip():
+        return [] # Return empty list if student profile is empty
+
+    # 3. Get all active internships
+    active_internships = db.query(models.Internship).filter(models.Internship.is_active == True).all()
+
+    # 4. Calculate score for each internship
+    recommendations = []
+    for internship in active_internships:
+        internship_text = " ".join(filter(None, [
+            internship.title,
+            internship.description,
+            internship.skills_required,
+            internship.responsibilities,
+            internship.qualifications,
+            internship.job_type
+        ]))
+        
+        score = scanner.calculate_match_score(student_text, internship_text)
+        
+        recommendation_data = internship.__dict__
+        recommendation_data['match_score'] = score
+        recommendations.append(recommendation_data)
+
+    # 5. Sort and return top 10
+    sorted_recommendations = sorted(recommendations, key=lambda x: x['match_score'], reverse=True)
+    return sorted_recommendations[:10]
+
+@app.get("/internships/{internship_id}/recommendations", response_model=List[schemas.ApplicationResponse])
+def get_internship_applicant_recommendations(
+    internship_id: int,
+    current_user: models.User = Depends(auth.get_current_active_employer),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all applicants for an internship, ranked by match score.
+    This will calculate and save the score for each applicant.
+    """
+    internship = crud.get_internship(db, internship_id=internship_id)
+    if not internship:
+        raise HTTPException(status_code=404, detail="Internship not found")
+    if internship.employer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to view recommendations for this internship")
+
+    internship_text = " ".join(filter(None, [internship.title, internship.description, internship.skills_required, internship.responsibilities, internship.qualifications, internship.job_type]))
+
+    updated_applications = []
+    for app in internship.applications:
+        student = app.student
+        student_text = " ".join(filter(None, [
+            student.student_profile.skills,
+            student.student_profile.experience,
+            student.student_profile.projects,
+            student.student_profile.career_goals,
+            student.bio
+        ])) if student and student.student_profile else ""
+        score = scanner.calculate_match_score(student_text, internship_text)
+        updated_app = crud.update_application_match_score(db, application_id=app.id, score=score)
+        if updated_app:
+            updated_applications.append(updated_app)
+
+    return sorted(updated_applications, key=lambda x: (x.match_score or 0), reverse=True)
+
+@app.post("/users/me/upgrade-to-premium", response_model=schemas.UserResponse)
+def upgrade_to_premium(
+    current_user: models.User = Depends(auth.get_current_active_student),
+    db: Session = Depends(get_db)
+):
+    """
+    Placeholder for upgrading to premium.
+    This would typically involve a payment gateway integration.
+    """
+    # Simulate a successful payment and upgrade
+    current_user.is_premium = True
+    current_user.premium_expires_at = None # or set to a year from now, etc.
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 @app.post("/users/me/top-up-credits", response_model=schemas.UserResponse)
 def top_up_credits(

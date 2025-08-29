@@ -93,6 +93,7 @@ class UserResponse(UserBase):
     updated_at: Optional[datetime] = None
     credits: int
     is_premium: bool
+    premium_expires_at: Optional[datetime] = None 
 
     class Config:
         from_attributes = True
@@ -106,14 +107,20 @@ class StudentProfileBase(BaseModel):
     experience: Optional[str] = None
     resume_url: Optional[str] = None
     portfolio_url: Optional[str] = None
+    projects: Optional[str] = None
+    certifications: Optional[str] = None
+    career_goals: Optional[str] = None
+    internship_preferences: Optional[str] = None
+    github_link: Optional[str] = None
+    linkedin_profile: Optional[str] = None
 
 class StudentProfileCreate(StudentProfileBase):
     """Schema for creating a student profile."""
-    pass # No extra fields needed on creation beyond base
+    pass  # No extra fields needed on creation beyond base
 
 class StudentProfileUpdate(StudentProfileBase):
     """Schema for updating a student profile."""
-    pass # No extra fields needed on update beyond base
+    pass  # No extra fields needed on update beyond base
 
 # --- MODIFICATION START ---
 # This is the corrected response model for a student's profile.
@@ -170,7 +177,10 @@ class InternshipBase(BaseModel):
     """Base schema for internship data."""
     title: str
     description: str
-    requirements: Optional[str] = None
+    skills_required: Optional[str] = None 
+    responsibilities: Optional[str] = None
+    qualifications: Optional[str] = None
+    job_type: Optional[str] = "Internship"
     location: Optional[str] = None
     stipend: Optional[str] = None
     duration: Optional[str] = None
@@ -194,12 +204,17 @@ class InternshipResponse(InternshipBase):
     class Config:
         from_attributes = True
 
+class InternshipRecommendation(InternshipResponse):
+    """Schema for returning an internship with a match score."""
+    match_score: int
+
 # --- Application Schemas ---
 
 class ApplicationBase(BaseModel):
     """Base schema for application data."""
     cover_letter: Optional[str] = None
     status: str = "pending" # 'pending', 'reviewed', 'accepted', 'rejected', 'hired'
+    match_score: Optional[int] = None
 
 class ApplicationCreate(ApplicationBase):
     """Schema for creating a new application."""

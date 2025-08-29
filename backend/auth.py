@@ -77,6 +77,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if user is None:
         raise credentials_exception
     return user
+    print(f"DEBUG AUTH: User ID '{user.id}' with email '{user.email}' has ROLE: '{user.role}'")
 
 def get_current_active_student(current_user: models.User = Depends(get_current_user)):
     """Dependency to ensure the current user is an active student."""

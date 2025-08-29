@@ -31,6 +31,7 @@ class User(Base):
     credits = Column(Integer, default=5)
     is_premium = Column(Boolean, default=False)
     last_credit_refill = Column(DateTime(timezone=True), server_default=func.now())
+    premium_expires_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     student_profile = relationship("StudentProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -57,6 +58,14 @@ class StudentProfile(Base):
     experience = Column(Text, nullable=True) # e.g., JSON string or comma-separated
     resume_url = Column(String, nullable=True)
     portfolio_url = Column(String, nullable=True)
+    
+    # New fields for more detailed profile
+    projects = Column(Text, nullable=True)
+    certifications = Column(Text, nullable=True)
+    career_goals = Column(Text, nullable=True)
+    internship_preferences = Column(Text, nullable=True)
+    github_link = Column(String, nullable=True)
+    linkedin_profile = Column(String, nullable=True)
 
     user = relationship("User", back_populates="student_profile")
 
@@ -88,16 +97,20 @@ class Internship(Base):
     employer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False)
-    requirements = Column(Text, nullable=True)
+
+    skills_required = Column(Text, nullable=True)
+    responsibilities = Column(Text, nullable=True)
+    qualifications = Column(Text, nullable=True)
+    job_type = Column(String, default="Internship")
     location = Column(String, nullable=True)
-    stipend = Column(String, nullable=True) # Can be 'Paid', 'Unpaid', or a specific amount
+    stipend = Column(String, nullable=True)
     duration = Column(String, nullable=True)
     posted_date = Column(DateTime(timezone=True), server_default=func.now())
     deadline_date = Column(DateTime(timezone=True), nullable=True)
     is_active = Column(Boolean, default=True)
-
     employer = relationship("User", back_populates="internships_posted")
     applications = relationship("Application", back_populates="internship", cascade="all, delete-orphan")
+    __table_args__ = {'extend_existing': True}
 
 class Application(Base):
     """
@@ -112,8 +125,8 @@ class Application(Base):
     applied_date = Column(DateTime(timezone=True), server_default=func.now())
     status = Column(String, default="pending") # 'pending', 'reviewed', 'accepted', 'rejected', 'hired'
     cover_letter = Column(Text, nullable=True)
+    
     # Potentially add a field for employer's notes or feedback
 
     internship = relationship("Internship", back_populates="applications")
     student = relationship("User", back_populates="applications")
-

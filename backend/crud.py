@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from datetime import timezone
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload 
 from sqlalchemy import or_
 # Changed relative imports to absolute imports
 import models, schemas
@@ -18,7 +18,10 @@ def get_user(db: Session, user_id: int):
 
 def get_user_by_email(db: Session, email: str):
     """Retrieve a user by email."""
-    return db.query(models.User).filter(models.User.email == email).first()
+    return db.query(models.User).options(
+        joinedload(models.User.student_profile), 
+        joinedload(models.User.employer_profile)
+    ).filter(models.User.email == email).first()
 
 def get_users(db: Session, skip: int = 0, limit: int = 100, role: str = None):
     """Retrieve a list of users, optionally filtered by role."""
@@ -30,6 +33,10 @@ def get_users(db: Session, skip: int = 0, limit: int = 100, role: str = None):
 def create_user(db: Session, user: schemas.UserCreate, is_verified: bool = False):
     """Create a new user with a hashed password and associated profile."""
     hashed_password = get_password_hash(user.password)
+
+    is_premium = True
+    premium_expires_at = datetime.now(timezone.utc) + timedelta(days=90)
+
     db_user = models.User(
         email=user.email,
         hashed_password=hashed_password,
@@ -40,8 +47,11 @@ def create_user(db: Session, user: schemas.UserCreate, is_verified: bool = False
         address=user.address,
         bio=user.bio,
         profile_picture_url=user.profile_picture_url,
-        is_verified=is_verified        
+        is_premium=is_premium,
+        premium_expires_at=premium_expires_at,
+        is_verified=is_verified
     )
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -147,9 +157,6 @@ def update_employer_profile(db: Session, user_id: int, profile_update: schemas.E
 
 # --- Internship CRUD Operations ---
 
-def get_internship(db: Session, internship_id: int):
-    """Retrieve an internship by ID."""
-    return db.query(models.Internship).filter(models.Internship.id == internship_id).first()
 
 def get_internships(db: Session, skip: int = 0, limit: int = 100, employer_id: int = None, search_query: str = None):
     """Retrieve a list of internships, optionally filtered by employer or search query."""
@@ -189,6 +196,13 @@ def update_internship(db: Session, internship_id: int, internship_update: schema
     db.commit()
     db.refresh(db_internship)
     return db_internship
+
+def get_internship(db: Session, internship_id: int):
+    """Retrieve an internship by ID with its employer details."""
+    # Use joinedload to prevent lazy loading issues
+    return db.query(models.Internship).options(
+        joinedload(models.Internship.employer)
+    ).filter(models.Internship.id == internship_id).first() 
 
 def delete_internship(db: Session, internship_id: int):
     """Delete an internship by ID."""
@@ -245,6 +259,18 @@ def update_application_status(db: Session, application_id: int, new_status: str)
     db.refresh(db_application)
     return db_application
 
+def update_application_match_score(db: Session, application_id: int, score: int):
+    """Update the match_score of an application."""
+    db_application = db.query(models.Application).filter(models.Application.id == application_id).first()
+    if not db_application:
+        return None
+    
+    db_application.match_score = score
+    db.add(db_application)
+    db.commit()
+    db.refresh(db_application)
+    return db_application
+
 def delete_application(db: Session, application_id: int):
     """Delete an application by ID."""
     db_application = db.query(models.Application).filter(models.Application.id == application_id).first()
@@ -283,3 +309,14 @@ def verify_user(db: Session, user: models.User):
     db.refresh(user)
     return user
 
+
+def check_premium_expiration(db: Session, user: models.User):
+    """
+    Checks if a user's premium subscription has expired and updates the user's status if it has.
+    """
+    if user.is_premium and user.premium_expires_at and user.premium_expires_at < datetime.now(timezone.utc):
+        user.is_premium = False
+        user.premium_expires_at = None
+        db.commit()
+        db.refresh(user)
+    return user

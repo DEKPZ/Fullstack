@@ -7,9 +7,11 @@ function PostInternship() {
   const [formData, setFormData] = useState({
     title: "",
     location: "",
+    skills_required: "",
+    responsibilities: "",
+    qualifications: "",
     stipend: "",
     duration: "",
-    requirements: "", // 2. Renamed from 'skills' to match the backend schema
     description: "",
     is_active: true, // Default to active
   });
@@ -37,7 +39,9 @@ function PostInternship() {
       const internshipData = {
         title: formData.title,
         description: formData.description,
-        requirements: formData.requirements,
+        skills_required: formData.skills_required,
+        responsibilities: formData.responsibilities,
+        qualifications: formData.qualifications,
         location: formData.location,
         stipend: formData.stipend || "Unpaid", // Set a default if stipend is empty
         duration: formData.duration,
@@ -51,9 +55,11 @@ function PostInternship() {
       setFormData({
         title: "",
         location: "",
+        skills_required: "",
+        responsibilities: "",
+        qualifications: "",
         stipend: "",
         duration: "",
-        requirements: "",
         description: "",
         is_active: true,
       });
@@ -82,6 +88,44 @@ function PostInternship() {
               required
             />
           </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Required Skills (Comma-separated)</Form.Label>
+            <Form.Control
+              type="text"
+              name="skills_required"
+              value={formData.skills_required}
+              onChange={handleChange}
+              placeholder="e.g., React, Node.js, Python, SQL"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Key Responsibilities (One per line)</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={4}
+              name="responsibilities"
+              value={formData.responsibilities}
+              onChange={handleChange}
+              placeholder="e.g., Develop new user-facing features..."
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Qualifications (One per line)</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              name="qualifications"
+              value={formData.qualifications}
+              onChange={handleChange}
+              placeholder="e.g., Currently pursuing a degree in Computer Science..."
+              required
+            />
+          </Form.Group>        
 
           {/* Company Name is removed as it's linked to the logged-in employer automatically */}
 
@@ -113,17 +157,6 @@ function PostInternship() {
               type="text"
               name="duration"
               value={formData.duration}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Required Skills / Requirements</Form.Label>
-            <Form.Control
-              type="text"
-              name="requirements"
-              value={formData.requirements}
               onChange={handleChange}
               required
             />

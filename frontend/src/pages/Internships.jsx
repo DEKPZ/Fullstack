@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { fetchInternships } from "../api"; // 1. Import your API function
 import "./Internships.css";
 
-// 2. Renamed component for clarity
 const InternshipsPage = () => { 
   const navigate = useNavigate();
   const [internships, setInternships] = useState([]);
@@ -14,7 +13,6 @@ const InternshipsPage = () => {
   useEffect(() => {
     const loadInternships = async () => {
       try {
-        // 3. Use the centralized API function
         const data = await fetchInternships();
         setInternships(data);
       } catch (err) {
@@ -29,6 +27,7 @@ const InternshipsPage = () => {
   }, []);
 
   const handleApply = (id) => {
+    // This navigation is correct and will take the user to the application form
     navigate(`/apply/${id}`);
   };
 
@@ -50,17 +49,27 @@ const InternshipsPage = () => {
               <Card className="internship-card">
                 <Card.Body>
                   <Card.Title className="internship-job-title">{internship.title}</Card.Title>
-                  {/* 4. Display employer_id as company name is not available directly */}
-                  <Card.Subtitle className="mb-2 text-muted">Company ID: {internship.employer_id}</Card.Subtitle>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    {/* Placeholder for a more descriptive company name */}
+                    Company ID: {internship.employer_id}
+                  </Card.Subtitle>
                   <div className="internship-details">
                     <p><strong>Location:</strong> {internship.location}</p>
-                    {/* The 'type' field is not in your backend model, so it's removed */}
                     <p><strong>Duration:</strong> {internship.duration || "N/A"}</p>
                     <p><strong>Stipend:</strong> {internship.stipend || "N/A"}</p>
                     <div className="internship-skills">
-                      <strong>Skills Required: </strong>
-                      {/* 5. Display 'requirements' from the backend, not 'skills' */}
-                      <span>{internship.requirements || "Not specified"}</span>
+                      <strong>Skills Required:</strong>
+                      <div className="skills-badge-container mt-1">
+                        {internship.skills_required ? (
+                          internship.skills_required.split(',').map((skill, index) => (
+                            <Badge pill bg="primary" key={index} className="me-1 mb-1 skill-badge">
+                              {skill.trim()}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-muted">Not specified</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Button className="internship-apply-button" onClick={() => handleApply(internship.id)}>
@@ -76,4 +85,4 @@ const InternshipsPage = () => {
   );
 };
 
-export default InternshipsPage; // 6. Export the correctly named component
+export default InternshipsPage;

@@ -103,6 +103,28 @@ export const fetchInternshipDetail = async (internshipId) => {
   }
 };
 
+export const studentUpdateApplicationStatus = async (applicationId, newStatus) => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    
+    // The new endpoint expects the status as a query parameter
+    const response = await axios.put(
+      `${API_BASE_URL}/students/me/applications/${applicationId}/status?new_status=${newStatus}`, 
+      {}, // Empty body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating application ${applicationId} to ${newStatus}:`, error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
 export const postInternship = async (internshipData) => {
   try {
     const token = getAuthToken();
@@ -246,6 +268,40 @@ export const fetchHiredInterns = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching hired interns:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// --- Recommendation API Calls ---
+
+export const fetchRecommendedInternships = async () => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.get(`${API_BASE_URL}/students/me/recommendations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching recommended internships:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const fetchRecommendedApplicants = async (internshipId) => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.get(`${API_BASE_URL}/internships/${internshipId}/recommendations`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching recommended applicants for internship ${internshipId}:`, error.response ? error.response.data : error.message);
     throw error;
   }
 };
@@ -460,6 +516,54 @@ export const verifyAndRegister = async (verificationData) => {
     return response.data;
   } catch (error) {
     console.error('Error verifying and registering:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const upgradeToPremium = async () => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.post(`${API_BASE_URL}/users/me/upgrade-to-premium`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error upgrading to premium:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+
+export const topUpOneCredit = async () => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.post(`${API_BASE_URL}/users/me/top-up-one-credit`, {}, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error topping up one credit:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// --- Resume API Call ---
+
+export const generateResumePdf = async (resumeData) => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.post(`${API_BASE_URL}/generate-resume`, resumeData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: 'blob', // Important for handling PDF data
+    });
+    return response.data; // Return the blob data
+  } catch (error) {
+    console.error('Error generating resume PDF:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
