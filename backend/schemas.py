@@ -263,3 +263,27 @@ class ResetPasswordRequest(BaseModel):
 class UserVerify(BaseModel):
     email: EmailStr
     otp: str
+
+class ApplicantProfileResponse(BaseModel):
+    """
+    Schema for an applicant's profile when viewed by an employer.
+    Excludes sensitive contact information like email and phone number.
+    """
+    id: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    bio: Optional[str] = None
+    education: Optional[str] = None
+    skills: Optional[str] = None
+    experience: Optional[str] = None
+    resume_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    projects: Optional[str] = None
+    certifications: Optional[str] = None
+    career_goals: Optional[str] = None
+    internship_preferences: Optional[str] = None
+    github_link: Optional[str] = None
+    linkedin_profile: Optional[str] = None
+    
+    class Config:
+        from_attributes = True

@@ -1,9 +1,9 @@
 // src/pages/ApplicantProfile.jsx
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Badge, Button, Spinner, Alert } from "react-bootstrap";
+import { Card, Spinner, Alert, Row, Col, Badge, Button } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchApplicantProfile } from "../api";
-import { Briefcase, GraduationCap, Code, Star, Mail, Phone, Linkedin, Github, Link as LinkIcon, FileText } from 'lucide-react';
+import { Briefcase, GraduationCap, Code, Linkedin, Github, Link as LinkIcon, FileText } from 'lucide-react';
 import "./ApplicantProfile.css";
 
 // Helper to safely parse JSON data from the backend, providing a default value if it fails
@@ -42,17 +42,15 @@ const ApplicantProfile = () => {
                 // Rebuild the applicant object, parsing JSON strings into arrays
                 setApplicant({
                     name: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim(),
-                    email: profileData.email,
-                    mobile: profileData.phone_number || "N/A",
                     bio: profileData.bio || profileData.career_goals || "No career objective provided.",
-                    
+
                     // Safely parse all relevant fields
                     education: safeJsonParse(profileData.education),
                     experience: safeJsonParse(profileData.experience),
                     projects: safeJsonParse(profileData.projects),
                     certifications: safeJsonParse(profileData.certifications),
                     skills: profileData.skills ? profileData.skills.split(',').map(s => s.trim()) : [],
-                    
+
                     // Links
                     resume_url: profileData.resume_url,
                     portfolio_url: profileData.portfolio_url,
@@ -89,10 +87,6 @@ const ApplicantProfile = () => {
                 {/* --- HEADER --- */}
                 <header className="profile-header">
                     <h1 className="applicant-name">{applicant.name}</h1>
-                    <div className="contact-info">
-                        <span><Mail size={16} /> {applicant.email}</span>
-                        <span><Phone size={16} /> {applicant.mobile}</span>
-                    </div>
                     <div className="profile-links">
                         {applicant.linkedin_profile && <a href={applicant.linkedin_profile} target="_blank" rel="noopener noreferrer"><Linkedin size={18} /> LinkedIn</a>}
                         {applicant.github_link && <a href={applicant.github_link} target="_blank" rel="noopener noreferrer"><Github size={18} /> GitHub</a>}

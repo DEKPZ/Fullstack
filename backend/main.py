@@ -685,38 +685,38 @@ def update_my_student_profile(
     db.refresh(current_user)
     return current_user
 
-@app.get("/applicants/{user_id}/profile", response_model=schemas.StudentProfileResponse)
+@app.get("/applicants/{user_id}/profile", response_model=schemas.ApplicantProfileResponse)
 def read_applicant_profile(
     user_id: int,
     current_user: models.User = Depends(auth.get_current_active_employer),
     db: Session = Depends(get_db)
 ):
-    """Get a specific applicant's profile by user ID (Employer only)."""
+    """Get a specific applicant's profile by user ID (Employer only). Excludes sensitive info."""
     user = crud.get_user(db, user_id=user_id)
-    print(user_id)
     if not user or user.role != "student":
         raise HTTPException(status_code=404, detail="Applicant (student) not found")
-    if not user.student_profile:
+
+    profile = user.student_profile
+    if not profile:
         raise HTTPException(status_code=404, detail="Student profile not found for this applicant")
-    return user
+
+    # Manually construct the response to match the secure ApplicantProfileResponse schema
     response_data = {
         "id": user.id,
         "first_name": user.first_name,
         "last_name": user.last_name,
-        "email": user.email,
-        "phone_number": user.phone_number,
         "bio": user.bio,
-        "education": user.student_profile.education,
-        "skills": user.student_profile.skills,
-        "experience": user.student_profile.experience,
-        "resume_url": user.student_profile.resume_url,
-        "portfolio_url": user.student_profile.portfolio_url,
-        "projects": user.student_profile.projects,
-        "certifications": user.student_profile.certifications,
-        "career_goals": user.student_profile.career_goals,
-        "internship_preferences": user.student_profile.internship_preferences,
-        "github_link": user.student_profile.github_link,
-        "linkedin_profile": user.student_profile.linkedin_profile,
+        "education": profile.education,
+        "skills": profile.skills,
+        "experience": profile.experience,
+        "resume_url": profile.resume_url,
+        "portfolio_url": profile.portfolio_url,
+        "projects": profile.projects,
+        "certifications": profile.certifications,
+        "career_goals": profile.career_goals,
+        "internship_preferences": profile.internship_preferences,
+        "github_link": profile.github_link,
+        "linkedin_profile": profile.linkedin_profile,
     }
     return response_data
 
@@ -1281,3 +1281,5 @@ def verify_and_register(verification_data: schemas.UserVerify, db: Session = Dep
         data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+

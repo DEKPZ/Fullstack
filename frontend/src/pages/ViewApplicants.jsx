@@ -31,8 +31,8 @@ const ViewApplicants = () => {
             return {
               ...app,
               name: `${profile.first_name || 'Applicant'} ${profile.last_name || ''}`.trim(), // Assuming name is in profile
-              email: profile.email || "Email not available", // Assuming email is in profile
-              university: profile.education || "N/A",
+              email: "Hidden",
+              university: "N/A",
               resumeLink: profile.resume_url || "#",
             };
           })
@@ -88,7 +88,7 @@ const ViewApplicants = () => {
                 applicants.map((applicant) => (
                   <tr key={applicant.id}>
                     <td>
-                      <Link to={`/student-profile/${applicant.student_id}`}>
+                      <Link to={`/applicant/${applicant.student_id}`}>
                         {applicant.name}
                       </Link>
                     </td>
