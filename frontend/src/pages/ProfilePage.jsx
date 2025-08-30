@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Form, Row, Col, Spinner, Alert, ProgressBar } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import {
   fetchCurrentUser,
   fetchMyStudentProfile,
@@ -30,6 +31,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadProfileData = async () => {
@@ -117,6 +119,7 @@ const ProfilePage = () => {
 
       await updateMyStudentProfile(payload);
       alert("Profile updated successfully!");
+      navigate("/my-profile");
     } catch (err) {
       console.error("Error saving profile:", err);
       setError("Failed to save profile. Please check your data and try again.");

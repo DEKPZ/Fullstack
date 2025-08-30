@@ -644,6 +644,29 @@ def read_my_student_profile(
     current_user: models.User = Depends(auth.get_current_active_student),
     db: Session = Depends(get_db)
 ):
+    profile = current_user.student_profile
+    if not profile:
+        raise HTTPException(status_code=404, detail="Student profile not found")
+    response_data = {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "email": current_user.email,
+        "phone_number": current_user.phone_number,
+        "education": profile.education,
+        "skills": profile.skills,
+        "experience": profile.experience,
+        "resume_url": profile.resume_url,
+        "portfolio_url": profile.portfolio_url,
+        "projects": profile.projects,
+        "certifications": profile.certifications,
+        "career_goals": profile.career_goals,
+        "internship_preferences": profile.internship_preferences,
+        "github_link": profile.github_link,
+        "linkedin_profile": profile.linkedin_profile,
+    }
+    return response_data
+
     """Get the current student's profile."""
     if not current_user.student_profile:
         raise HTTPException(status_code=404, detail="Student profile not found")
@@ -670,11 +693,32 @@ def read_applicant_profile(
 ):
     """Get a specific applicant's profile by user ID (Employer only)."""
     user = crud.get_user(db, user_id=user_id)
+    print(user_id)
     if not user or user.role != "student":
         raise HTTPException(status_code=404, detail="Applicant (student) not found")
     if not user.student_profile:
         raise HTTPException(status_code=404, detail="Student profile not found for this applicant")
     return user
+    response_data = {
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "phone_number": user.phone_number,
+        "bio": user.bio,
+        "education": user.student_profile.education,
+        "skills": user.student_profile.skills,
+        "experience": user.student_profile.experience,
+        "resume_url": user.student_profile.resume_url,
+        "portfolio_url": user.student_profile.portfolio_url,
+        "projects": user.student_profile.projects,
+        "certifications": user.student_profile.certifications,
+        "career_goals": user.student_profile.career_goals,
+        "internship_preferences": user.student_profile.internship_preferences,
+        "github_link": user.student_profile.github_link,
+        "linkedin_profile": user.student_profile.linkedin_profile,
+    }
+    return response_data
 
 
 @app.put("/students/me/applications/{application_id}/status", response_model=schemas.ApplicationResponse)
@@ -772,7 +816,7 @@ def update_existing_internship(
     internship = crud.get_internship(db, internship_id=internship_id)
     if not internship:
         raise HTTPException(status_code=404, detail="Internship not found")
-    if internship.employer_id != current_user.id:
+    if int(internship.employer_id) != int(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to update this internship")
 
     updated_internship = crud.update_internship(db, internship_id=internship_id, internship_update=internship_update)
@@ -788,7 +832,7 @@ def delete_existing_internship(
     internship = crud.get_internship(db, internship_id=internship_id)
     if not internship:
         raise HTTPException(status_code=404, detail="Internship not found")
-    if internship.employer_id != current_user.id:
+    if int(internship.employer_id ) != int(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to delete this internship")
 
     success = crud.delete_internship(db, internship_id=internship_id)
@@ -931,7 +975,7 @@ def calculate_and_store_match_score(
 
     # 2. Authorize the employer by checking internship ownership
     internship = application.internship
-    if not internship or internship.employer_id != current_user.id:
+    if not internship or int(internship.employer_id )!= int(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to calculate score for this application")
 
     # 3. Fetch the student's profile
@@ -1025,7 +1069,7 @@ def get_internship_applicant_recommendations(
     internship = crud.get_internship(db, internship_id=internship_id)
     if not internship:
         raise HTTPException(status_code=404, detail="Internship not found")
-    if internship.employer_id != current_user.id:
+    if int(internship.employer_id ) != int(current_user.id):
         raise HTTPException(status_code=403, detail="Not authorized to view recommendations for this internship")
 
     internship_text = " ".join(filter(None, [internship.title, internship.description, internship.skills_required, internship.responsibilities, internship.qualifications, internship.job_type]))
@@ -1087,7 +1131,7 @@ def get_hired_interns(
     db: Session = Depends(get_db)
 ):
     """Get a list of interns hired by the current employer."""
-    employer_internships = crud.get_internships(db, employer_id=current_user.id)
+    employer_internships = crud.get_internships(db, employer_id = current_user.id)
     hired_applications = []
     for internship in employer_internships:
         applications = crud.get_applications_by_internship(db, internship_id=internship.id)

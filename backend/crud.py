@@ -6,6 +6,8 @@ from datetime import timezone
 
 from sqlalchemy.orm import Session, joinedload 
 from sqlalchemy import or_
+
+from sqlalchemy.orm import Session, joinedload
 # Changed relative imports to absolute imports
 import models, schemas
 from auth import get_password_hash # Import the hashing utility
@@ -14,7 +16,10 @@ from auth import get_password_hash # Import the hashing utility
 
 def get_user(db: Session, user_id: int):
     """Retrieve a user by ID."""
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(models.User).options(
+        joinedload(models.User.student_profile),
+        joinedload(models.User.employer_profile)
+    ).filter(models.User.id == user_id).first()
 
 def get_user_by_email(db: Session, email: str):
     """Retrieve a user by email."""

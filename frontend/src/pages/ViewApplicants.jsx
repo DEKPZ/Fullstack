@@ -88,8 +88,7 @@ const ViewApplicants = () => {
                 applicants.map((applicant) => (
                   <tr key={applicant.id}>
                     <td>
-                      {/* Link remains the same, assuming /applicant/:id route is correct */}
-                      <Link to={`/applicant/${applicant.student_id}`}>
+                      <Link to={`/student-profile/${applicant.student_id}`}>
                         {applicant.name}
                       </Link>
                     </td>

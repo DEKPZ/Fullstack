@@ -25,6 +25,7 @@ import ManageUsers from "./pages/ManageUsers";
 import ManageInternships from "./pages/ManageInternships";
 import ProfilePage from "./pages/ProfilePage";
 import MyInternships from "./pages/MyInternships";
+import StudentProfileDisplay from "./pages/StudentProfileDisplay";
 import NotFound from "./pages/NotFound";
 import "./App.css";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -49,7 +50,7 @@ const App = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/interns" element={<InternsDashboard />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/InternshipDetail" element={<InternshipDetail />} />
+            <Route path="/internship-detail/:internshipId" element={<InternshipDetail />} />
             <Route path="/employer" element={<EmployerDashboard />} />
             <Route path="/internships" element={<Internships />} />
             <Route path="/post-internship" element={<PostInternship />} />
@@ -58,6 +59,8 @@ const App = () => {
             <Route path="/apply/:id" element={<ApplyPage />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/my-profile" element={<StudentProfileDisplay />} />
+            <Route path="/student-profile/:studentId" element={<StudentProfileDisplay />} />
             <Route path="/view-applicants/:internshipId" element={<ViewApplicants />} />
             <Route path="/applicant/:applicantId" element={<ApplicantProfile />} />
             <Route path="/employer/my-internships" element={<MyInternships />} />

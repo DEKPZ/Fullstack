@@ -1,50 +1,84 @@
-:root {
-    --primary-bg: #F2EFE7; /* Light Cream */
-    --sidebar-bg: #006A71; /* Dark Teal */
-    --card-bg: #9ACBD0; /* Soft Teal */
-    --btn-primary: #48A6A7;
-    --gradient-bg: linear-gradient(to bottom, #F2EFE7, #006A71);
-  }
-  
-  .dashboard-page {
+/* --- Styles for the Pop-up Search Screen --- */
+
+.search-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(242, 239, 231, 0.98);
+    z-index: 1050;
     display: flex;
-    min-height: 100vh;
-    background: var(--gradient-bg);
-  }
-  
-  .sidebar {
-    width: 260px;
-    background: var(--sidebar-bg);
-    padding: 20px;
-    height: 100vh;
-  }
-  
-  .sidebar-btn {
-    background: var(--card-bg);
-    color: var(--sidebar-bg);
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.search-overlay-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    background-color: #006A71;
+    color: #F2EFE7;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.search-overlay-header h3 {
+    margin: 0;
+}
+
+.search-overlay-header .close-btn {
+    background: transparent;
     border: none;
-    padding: 12px;
-  }
-  
-  .dashboard-container {
+    color: #F2EFE7;
+    opacity: 0.8;
+}
+.search-overlay-header .close-btn:hover {
+    opacity: 1;
+}
+
+.search-overlay-body {
     flex: 1;
-    padding: 30px;
-  }
-  
-  .internship-card, .resume-card, .skill-card, .community-card, .notification-card {
-    background: var(--card-bg);
-    border-radius: 10px;
-  }
-  
-  .status {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-  }
-  
-  .status.applied { background: yellow; }
-  .status.shortlisted { background: blue; color: white; }
-  .status.interview-scheduled { background: orange; }
-  .status.hired { background: green; color: white; }
-  .status.rejected { background: red; color: white; }
-  
+    overflow-y: auto;
+    padding: 2rem;
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.search-input-overlay {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    border: 2px solid #48A6A7;
+}
+.search-input-overlay:focus {
+    border-color: #006A71;
+    box-shadow: 0 0 0 0.25rem rgba(0, 106, 113, 0.25);
+}
+
+.search-result-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+    border: 1px solid #ddd;
+}
+
+.search-result-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: #48A6A7;
+}
+
+.search-card-title {
+    color: #006A71;
+}
+
+.match-score-badge {
+    font-size: 0.9rem;
+    padding: 0.5em 0.8em;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

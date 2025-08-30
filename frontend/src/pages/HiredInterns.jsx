@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Table, Spinner, Alert } from "react-bootstrap";
 import { FaUserGraduate, FaCalendarCheck } from "react-icons/fa";
-// 1. REMOVE the import for fetchUserById as it's the source of the error
 import { fetchHiredInterns, fetchInternshipDetail, fetchApplicantProfile } from "../api";
 import "./HiredInterns.css";
 
