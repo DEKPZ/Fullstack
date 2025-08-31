@@ -27,13 +27,12 @@ import ManageInternships from "./pages/ManageInternships";
 import ProfilePage from "./pages/ProfilePage";
 import MyInternships from "./pages/MyInternships";
 import StudentProfileDisplay from "./pages/StudentProfileDisplay";
+import EmployerProfilePage from "./pages/EmployerProfilepage"; // <-- ADDED
 import NotFound from "./pages/NotFound";
 import "./App.css";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import VerifyEmail from "./pages/VerifyEmail";
-
-// Import the Chat Widget component
 import ChatWidget from './components/ChatWidget';
 
 const App = () => {
@@ -41,7 +40,6 @@ const App = () => {
     <Router>
       <div className="app-container">
         <Navbar />
-        {/* This main tag ensures the footer stays at the bottom */}
         <main className="content-wrap">
           <Routes>
             <Route path="/" element={<Home />} />
@@ -66,18 +64,17 @@ const App = () => {
             <Route path="/view-applicants/:internshipId" element={<ViewApplicants />} />
             <Route path="/applicant/:applicantId" element={<ApplicantProfile />} />
             <Route path="/employer/my-internships" element={<MyInternships />} />
+            <Route path="/employer/profile" element={<EmployerProfilePage />} /> {/* <-- ADDED */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<ManageUsers />} />
             <Route path="/admin/internships" element={<ManageInternships />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email" element={<VerifyEmail />} /> 
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Footer />
-
-        {/* This places the chat widget on all pages */}
         <ChatWidget />
       </div>
     </Router>
