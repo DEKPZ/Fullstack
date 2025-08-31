@@ -325,3 +325,17 @@ def check_premium_expiration(db: Session, user: models.User):
         db.commit()
         db.refresh(user)
     return user
+
+def get_hired_applications_for_employer(db: Session, employer_id: int, skip: int = 0, limit: int = 100):
+    """
+    Fetches all 'hired' applications for an employer, eagerly loading
+    student and internship details in a single query.
+    """
+    return db.query(models.Application).join(models.Internship).filter(
+        models.Internship.employer_id == employer_id,
+        models.Application.status == "hired"
+    ).options(
+        joinedload(models.Application.student).joinedload(models.User.student_profile),
+        joinedload(models.Application.internship)
+    ).offset(skip).limit(limit).all()
+

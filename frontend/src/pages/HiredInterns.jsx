@@ -1,10 +1,20 @@
-// src/pages/HiredInterns.jsx
-
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Table, Spinner, Alert } from "react-bootstrap";
-import { FaUserGraduate, FaCalendarCheck } from "react-icons/fa";
-import { fetchHiredInterns, fetchInternshipDetail, fetchApplicantProfile } from "../api";
+import { FaUserGraduate, FaCalendarCheck, FaEnvelope, FaPhone } from "react-icons/fa";
+// MODIFICATION: Import the single, efficient API function
+import { fetchHiredInternsDetails } from "../api";
 import "./HiredInterns.css";
+
+// Helper function to safely parse education data
+const getUniversity = (educationString) => {
+    if (!educationString) return "N/A";
+    try {
+        const education = JSON.parse(educationString);
+        return education[0]?.institution || "N/A";
+    } catch (e) {
+        return "N/A";
+    }
+};
 
 const HiredInterns = () => {
   const [hiredInterns, setHiredInterns] = useState([]);
@@ -15,38 +25,9 @@ const HiredInterns = () => {
     const loadHiredInterns = async () => {
       try {
         setLoading(true);
-        const hiredApplications = await fetchHiredInterns();
-
-        if (hiredApplications.length === 0) {
-          setHiredInterns([]);
-          setLoading(false); // Stop loading if there's nothing to fetch
-          return;
-        }
-
-        const detailedHiredInterns = await Promise.all(
-          hiredApplications.map(async (app) => {
-            // 2. FIX: Remove the failing fetchUserById call from Promise.all
-            // We now only fetch the internship and the public applicant profile.
-            const [internshipData, profileData] = await Promise.all([
-              fetchInternshipDetail(app.internship_id),
-              fetchApplicantProfile(app.student_id)
-            ]);
-
-            // 3. FIX: Construct the object using only the data from the successful API calls.
-            // We assume the applicant profile contains the necessary name, email, etc.
-            return {
-              id: app.id,
-              name: `${profileData.first_name || ''} ${profileData.last_name || ''}`.trim(),
-              position: internshipData.title,
-              hiredDate: new Date(app.applied_date).toLocaleDateString(), // Using applied_date as a stand-in
-              email: profileData.email || "N/A",
-              contact: profileData.phone_number || "N/A",
-              university: profileData.education || "N/A",
-            };
-          })
-        );
-
-        setHiredInterns(detailedHiredInterns);
+        // MODIFICATION: Use the single API call to get all required data
+        const hiredApplications = await fetchHiredInternsDetails();
+        setHiredInterns(hiredApplications);
       } catch (err) {
         console.error("Error fetching hired interns:", err);
         setError("Failed to load hired interns. Please ensure you are logged in as an employer.");
@@ -80,21 +61,22 @@ const HiredInterns = () => {
                     <th><FaUserGraduate /> Intern Name</th>
                     <th>Position</th>
                     <th><FaCalendarCheck /> Hired Date</th>
-                    <th>Email</th>
-                    <th>Contact</th>
+                    <th><FaEnvelope /> Email</th>
+                    <th><FaPhone /> Contact</th>
                     <th>University</th>
                   </tr>
                 </thead>
                 <tbody>
                   {hiredInterns.length > 0 ? (
-                    hiredInterns.map((intern) => (
-                      <tr key={intern.id}>
-                        <td>{intern.name}</td>
-                        <td>{intern.position}</td>
-                        <td>{intern.hiredDate}</td>
-                        <td>{intern.email}</td>
-                        <td>{intern.contact}</td>
-                        <td>{intern.university}</td>
+                    hiredInterns.map((app) => (
+                      <tr key={app.id}>
+                        {/* MODIFICATION: Access nested data safely */}
+                        <td>{`${app.student?.first_name || ''} ${app.student?.last_name || ''}`}</td>
+                        <td>{app.internship?.title || 'N/A'}</td>
+                        <td>{new Date(app.applied_date).toLocaleDateString()}</td>
+                        <td>{app.student?.email || 'N/A'}</td>
+                        <td>{app.student?.phone_number || 'N/A'}</td>
+                        <td>{getUniversity(app.student?.student_profile?.education)}</td>
                       </tr>
                     ))
                   ) : (

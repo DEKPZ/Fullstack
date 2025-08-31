@@ -685,7 +685,7 @@ def update_my_student_profile(
     db.refresh(current_user)
     return current_user
 
-@app.get("/applicants/{user_id}/profile", response_model=schemas.ApplicantProfileResponse)
+@app.get("/applicants/{user_id}/profile")
 def read_applicant_profile(
     user_id: int,
     current_user: models.User = Depends(auth.get_current_active_employer),
@@ -699,6 +699,12 @@ def read_applicant_profile(
     profile = user.student_profile
     if not profile:
         raise HTTPException(status_code=404, detail="Student profile not found for this applicant")
+    
+    is_hired = db.query(models.Application).filter(
+        models.Application.student_id == user_id,
+        models.Application.internship.has(employer_id=current_user.id),
+        models.Application.status == "hired"
+    ).first()
 
     # Manually construct the response to match the secure ApplicantProfileResponse schema
     response_data = {
@@ -718,26 +724,34 @@ def read_applicant_profile(
         "github_link": profile.github_link,
         "linkedin_profile": profile.linkedin_profile,
     }
+
+    if is_hired:
+        response_data["email"] = user.email
+        response_data["phone_number"] = user.phone_number
+
+
     return response_data
 
 
 @app.put("/students/me/applications/{application_id}/status", response_model=schemas.ApplicationResponse)
 def student_update_application_status(
     application_id: int,
-    new_status: str = Query(..., description="New status: must be 'hired' or 'rejected'"),
+    # MODIFICATION: Add 'withdrawn' to the list of allowed statuses
+    new_status: str = Query(..., description="New status: must be 'hired' or 'withdrawn'"),
     current_user: models.User = Depends(auth.get_current_active_student),
     db: Session = Depends(get_db)
 ):
     """
-    Allows a student to accept ('hired') or reject an offer.
+    Allows a student to accept ('hired') or withdraw an offer.
     An offer is an application with the status 'accepted'.
     """
-    if new_status not in ["hired", "rejected"]:
-        raise HTTPException(status_code=400, detail="Invalid status. Can only be 'hired' or 'rejected'.")
+    # MODIFICATION: Update the check to include 'withdrawn'
+    if new_status.lower() not in ["hired", "withdrawn"]:
+        raise HTTPException(status_code=400, detail="Invalid status. Can only be 'hired' or 'withdrawn'.")
 
     application = crud.get_application(db, application_id=application_id)
 
-    # Security Checks
+    # Security Checks (no changes needed here, they are correct)
     if not application:
         raise HTTPException(status_code=404, detail="Application not found")
     if application.student_id != current_user.id:
@@ -745,10 +759,20 @@ def student_update_application_status(
     if application.status != "accepted":
         raise HTTPException(status_code=400, detail="This application is not in an 'accepted' state to be actioned as an offer.")
 
-    # Update the status
-    updated_application = crud.update_application_status(db, application_id=application_id, new_status=new_status)
-    return updated_application
+    # If student withdraws, we don't need a credit check.
+    # If student accepts ('hired'), we must check if they have credits.
+    if new_status.lower() == 'hired':
+        if not current_user.is_premium and current_user.credits < 1:
+            raise HTTPException(status_code=403, detail="You do not have enough credits to accept this offer.")
+        # Deduct a credit upon hiring
+        if not current_user.is_premium:
+            current_user.credits -= 1
+            db.commit()
 
+
+    # Update the status
+    updated_application = crud.update_application_status(db, application_id=application_id, new_status=new_status.lower())
+    return updated_application
 
 # --- Employer Profile Management ---
 
@@ -1054,7 +1078,7 @@ def get_student_recommendations(
 
     # 5. Sort and return top 10
     sorted_recommendations = sorted(recommendations, key=lambda x: x['match_score'], reverse=True)
-    return sorted_recommendations[:10]
+    return sorted_recommendations
 
 @app.get("/internships/{internship_id}/recommendations", response_model=List[schemas.ApplicationResponse])
 def get_internship_applicant_recommendations(
@@ -1123,7 +1147,7 @@ def top_up_credits(
     db.refresh(current_user)
     return current_user
 
-@app.get("/hired-interns", response_model=List[schemas.ApplicationResponse])
+@app.get("/hired-interns", response_model=List[schemas.HiredInternDetailResponse])
 def get_hired_interns(
     skip: int = 0,
     limit: int = 100,
@@ -1131,13 +1155,10 @@ def get_hired_interns(
     db: Session = Depends(get_db)
 ):
     """Get a list of interns hired by the current employer."""
-    employer_internships = crud.get_internships(db, employer_id = current_user.id)
-    hired_applications = []
-    for internship in employer_internships:
-        applications = crud.get_applications_by_internship(db, internship_id=internship.id)
-        hired_applications.extend([app for app in applications if app.status == "hired"])
-
-    return hired_applications[skip : skip + limit]
+    hired_applications = crud.get_hired_applications_for_employer(
+        db, employer_id=current_user.id, skip=skip, limit=limit
+    )
+    return hired_applications
 
 # --- Admin Internship Management (Admin Only) ---
 

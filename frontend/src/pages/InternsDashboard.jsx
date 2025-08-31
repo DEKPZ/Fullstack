@@ -1,3 +1,5 @@
+// src/pages/InternsDashboard.jsx
+
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import { ResponsiveContainer, RadialBarChart, RadialBar } from "recharts";
@@ -9,12 +11,11 @@ import {
     fetchMyApplications,
     fetchRecommendedInternships,
     fetchInternshipDetail,
-    // applyToInternship is no longer used directly on this page
-    studentUpdateApplicationStatus 
+    studentUpdateApplicationStatus
 } from "../api";
 import "./Dashboard.css";
 
-// Helper function for the pop-up search screen
+// Helper for search debounce
 const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
   useEffect(() => {
@@ -28,7 +29,7 @@ const useDebounce = (value, delay) => {
   return debouncedValue;
 };
 
-// This is the full-screen "YouTube-style" search component
+// Search Overlay Component
 const SearchOverlay = ({ onClose }) => {
     const navigate = useNavigate();
     const [recommendations, setRecommendations] = useState([]);
@@ -82,11 +83,12 @@ const SearchOverlay = ({ onClose }) => {
                     <div className="search-results">
                         {filteredResults.length > 0 ? (
                              filteredResults.map(internship => (
-                                <Card key={internship.id} className="mb-3 search-result-card" onClick={() => navigate(`/internship-detail/${internship.id}`)}>
+                                <Card key={internship.id} className="mb-3 search-result-card" onClick={() => navigate(`/internship-description/${internship.id}`)}>
                                     <Card.Body>
                                         <div className="d-flex justify-content-between align-items-start">
                                             <div>
                                                 <Card.Title className="search-card-title">{internship.title}</Card.Title>
+                                                <Card.Subtitle className="mb-2 text-muted">{internship.employer?.employer_profile?.company_name || 'Company Details Unavailable'}</Card.Subtitle>
                                                 <Card.Subtitle className="mb-2 text-muted">{internship.location} | {internship.duration}</Card.Subtitle>
                                             </div>
                                             <Badge bg="success" className="match-score-badge">{internship.match_score}% Match</Badge>
@@ -103,18 +105,16 @@ const SearchOverlay = ({ onClose }) => {
 };
 
 
-/* -------------------------
-   Main Dashboard Component
-   ------------------------- */
 const InternsDashboard = () => {
     const [applications, setApplications] = useState([]);
+    // MODIFICATION: Add state for offers
+    const [offers, setOffers] = useState([]);
     const [recommendedInternships, setRecommendedInternships] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [user, setUser] = useState(null); 
+    const [user, setUser] = useState(null);
     const [credits, setCredits] = useState(0);
     const [showSearch, setShowSearch] = useState(false);
-
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -132,7 +132,7 @@ const InternsDashboard = () => {
                 const combinedUser = {
                     name: `${userData.first_name || ''} ${userData.last_name || ''}`.trim(),
                     email: userData.email,
-                    phone: userData.phone_number || "+91 9876543210", 
+                    phone: userData.phone_number || "+91 9876543210",
                     photo: userData.profile_picture_url || null,
                     skills: profileData.skills ? profileData.skills.split(',').map(s => s.trim()) : ["Add your skills"],
                 };
@@ -145,7 +145,13 @@ const InternsDashboard = () => {
                         return { ...app, internship: internshipDetails };
                     })
                 );
+                
                 setApplications(applicationsWithDetails);
+                
+                // MODIFICATION: Filter for offers and set the new state
+                const pendingOffers = applicationsWithDetails.filter(app => app.status === 'accepted');
+                setOffers(pendingOffers);
+                
                 setRecommendedInternships(recommendationsData);
 
             } catch (err) {
@@ -157,7 +163,7 @@ const InternsDashboard = () => {
         };
         fetchData();
     }, []);
-
+    
     if (loading) return <div className="loading-state"><h1>Loading Dashboard...</h1></div>;
     if (error) return <div className="error-state"><h1>{error}</h1></div>;
 
@@ -176,7 +182,8 @@ const InternsDashboard = () => {
                                 Build Resume
                             </button>
                         </div>
-                        <OffersSection />
+                        {/* MODIFICATION: Pass the offers state to the component */}
+                        <OffersSection offers={offers} />
                     </section>
 
                     <section className="middle-column" aria-label="Overview and Applications">
@@ -198,10 +205,9 @@ const InternsDashboard = () => {
 };
 
 /* --- Child Components --- */
-
 function ProfileCard({ user }) {
     const navigate = useNavigate();
-    const fileInputRef = useRef();
+    const fileInputRef = useRef(null);
 
     return (
         <section className="card profile-card" aria-labelledby="profile-title">
@@ -221,7 +227,7 @@ function ProfileCard({ user }) {
                         {user?.skills.map((s, i) => <span className="chip" key={i}>{s}</span>)}
                     </div>
                     <div className="profile-actions">
-                        <button className="btn" onClick={() => navigate('/my-profile')}>Edit Profile</button>
+                        <button className="btn" onClick={() => navigate('/profile')}>Edit Profile</button>
                         <button className="btn" onClick={() => fileInputRef.current.click()}>Upload Resume</button>
                         <input type="file" ref={fileInputRef} onChange={() => alert("Resume upload logic here.")} style={{ display: 'none' }} />
                     </div>
@@ -231,12 +237,42 @@ function ProfileCard({ user }) {
     );
 }
 
+// MODIFICATION: Update OffersSection to render the offers
 function OffersSection({ offers = [] }) {
+    const navigate = useNavigate();
+
+    const handleViewOffer = (internshipId, applicationId) => {
+        navigate(`/internship-description/${internshipId}`, {
+            state: { from: 'offers', applicationId: applicationId }
+        });
+    };
+
     return (
         <section className="card offers-card" aria-labelledby="offers-title">
             <div className="card-header"><h2 id="offers-title">Offers</h2></div>
             <div className="offers-body">
-                 {offers.length === 0 && <div className="muted-text">No pending offers.</div>}
+                 {offers.length === 0 ? (
+                    <div className="muted-text">No pending offers.</div>
+                 ) : (
+                    <ul className="apps-list">
+                        {offers.map(offer => (
+                            <li key={offer.id} className="app-item">
+                                <div className="app-main">
+                                    <strong>{offer.internship.title}</strong>
+                                    <div className="status-badge status-offer">Offer Received!</div>
+                                </div>
+                                <div className="app-actions">
+                                    <button 
+                                        className="btn-text small"
+                                        onClick={() => handleViewOffer(offer.internship_id, offer.id)}
+                                    >
+                                        View & Respond
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                 )}
             </div>
         </section>
     );
@@ -273,6 +309,7 @@ function WelcomeOverview({ userName, credits }) {
 
 function InternshipApplicationTracker({ applications, setApplications }) {
     function withdrawApplication(id) {
+        // This should probably call an API in a real app
         setApplications((prev) => prev.filter((a) => a.id !== id));
     }
     return (
@@ -304,7 +341,7 @@ function InternshipSearch({ recommendations, loading, onFindMoreClick }) {
     const navigate = useNavigate();
 
     const handleViewDetails = (internshipId) => {
-        navigate(`/internship-detail/${internshipId}`);
+        navigate(`/internship-description/${internshipId}`);
     };
 
     return (
@@ -323,26 +360,32 @@ function InternshipSearch({ recommendations, loading, onFindMoreClick }) {
             <div className="recommended" style={{ padding: '1rem' }}>
                 <h4>Recommended for you</h4>
                 {loading && <div className="muted-text">Loading...</div>}
-                {!loading && recommendations.length === 0 && <div className="muted-text">No recommendations available.</div>}
+                {!loading && recommendations.length === 0 && <div className="muted-text">Complete your profile to see available offers.</div>}
                 <ul className="rec-list">
-                    {recommendations.map((r) => (
-                        <li key={r.id} className="rec-item">
-                            <div className="rec-details">
-                                <div className="d-flex justify-content-between align-items-start">
-                                    <strong>{r.title}</strong>
-                                    {r.match_score != null && (
-                                        <Badge bg="success" pill>{r.match_score}% Match</Badge>
-                                    )}
+                    {recommendations.slice(0, 5).map((r) => {
+                        const companyName = r.employer?.employer_profile?.company_name || 'Company Details Unavailable';
+                        return (
+                            <li key={r.id} className="rec-item">
+                                <div className="rec-details">
+                                    <div className="d-flex justify-content-between align-items-start">
+                                        <strong>{r.title}</strong>
+                                        {r.match_score != null && (
+                                            <Badge bg="success" pill>{r.match_score}% Match</Badge>
+                                        )}
+                                    </div>
+                                    <div className="muted small">
+                                        <strong>{companyName}</strong>
+                                    </div>
+                                    <div className="muted small">{r.location} • {r.duration} • {r.stipend}</div>
                                 </div>
-                                <div className="muted small">{r.location} • {r.duration} • {r.stipend}</div>
-                            </div>
-                            <div className="rec-actions">
-                                <button className="btn primary" onClick={() => handleViewDetails(r.id)}>
-                                    Apply
-                                </button>
-                            </div>
-                        </li>
-                    ))}
+                                <div className="rec-actions">
+                                    <button className="btn primary" onClick={() => handleViewDetails(r.id)}>
+                                        Details
+                                    </button>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             </div>
         </section>
@@ -350,3 +393,4 @@ function InternshipSearch({ recommendations, loading, onFindMoreClick }) {
 }
 
 export default InternsDashboard;
+

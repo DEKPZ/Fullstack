@@ -287,3 +287,23 @@ class ApplicantProfileResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+
+class StudentProfileForHiredResponse(BaseModel):
+    education: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class StudentForHiredResponse(UserResponse):
+    student_profile: Optional[StudentProfileForHiredResponse] = None
+
+    class Config:
+        from_attributes = True
+
+class HiredInternDetailResponse(ApplicationResponse):
+    student: StudentForHiredResponse
+    internship: InternshipResponse
+
+    class Config:
+        from_attributes = True

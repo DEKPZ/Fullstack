@@ -1,0 +1,161 @@
+.internship-description-page {
+    background-color: #f0f2f5;
+    padding: 3rem 1rem;
+    min-height: 100vh;
+}
+
+.internship-description-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+    padding: 2.5rem;
+}
+
+.internship-title-desc {
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 0.25rem;
+}
+
+.company-name-desc {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.company-name-desc a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.company-name-desc a:hover {
+    color: #1e3a8a;
+}
+
+.posted-date-desc {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.badges-container-desc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 2rem 0;
+    justify-content: center;
+    padding: 1rem 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.badges-container-desc .badge {
+    font-size: 0.9rem;
+    padding: 0.6em 1em;
+}
+
+.section-desc {
+    margin-top: 2.5rem;
+}
+
+.section-title-desc {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-content-desc {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #374151;
+    white-space: pre-wrap;
+}
+
+.skills-list-desc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skill-badge {
+    font-size: 0.95rem !important;
+}
+
+.details-list-desc {
+    list-style: none;
+    padding-left: 0;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #374151;
+}
+
+.details-list-desc li {
+    padding-left: 1.75rem;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.details-list-desc li::before {
+    content: '›';
+    color: #3b82f6;
+    font-weight: bold;
+    font-size: 1.5rem;
+    position: absolute;
+    left: 0;
+    top: -4px;
+}
+
+.apply-button-desc {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    padding: 0.8rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.apply-button-desc:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
+}
+
+/* --- NEW STYLES FOR OFFER BUTTONS --- */
+.offer-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.accept-button-desc {
+    background-color: #198754; /* Green for accept */
+    border-color: #198754;
+    padding: 0.8rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.accept-button-desc:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    transform: translateY(-3px);
+}
+
+.withdraw-button-desc {
+    padding: 0.8rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}

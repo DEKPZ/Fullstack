@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Contact from "./pages/Contact";
 import Internships from "./pages/Internships";
 import InternshipDetail from "./pages/InternshipDetail";
+import InternshipDescription from "./pages/InternshipDescription";
 import InternsDashboard from "./pages/InternsDashboard";
 import EmployerDashboard from "./pages/EmployerDashboard";
 import PostInternship from "./pages/PostInternship";
@@ -51,6 +52,7 @@ const App = () => {
             <Route path="/interns" element={<InternsDashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/internship-detail/:internshipId" element={<InternshipDetail />} />
+            <Route path="/internship-description/:internshipId" element={<InternshipDescription />} />
             <Route path="/employer" element={<EmployerDashboard />} />
             <Route path="/internships" element={<Internships />} />
             <Route path="/post-internship" element={<PostInternship />} />

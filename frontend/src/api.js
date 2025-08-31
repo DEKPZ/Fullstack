@@ -534,6 +534,24 @@ export const upgradeToPremium = async () => {
   }
 };
 
+export const fetchHiredInternsDetails = async () => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    // This endpoint fetches applications with status 'hired' for the current employer
+    const response = await axios.get(`${API_BASE_URL}/hired-interns`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching hired interns:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+
 
 export const topUpOneCredit = async () => {
   try {
