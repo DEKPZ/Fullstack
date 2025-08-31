@@ -1304,3 +1304,75 @@ def verify_and_register(verification_data: schemas.UserVerify, db: Session = Dep
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@app.post("/employers/match-students", response_model=List[schemas.StudentSearchResult])
+def match_students(
+    search_request: schemas.StudentSearchRequest,
+    current_user: models.User = Depends(auth.get_current_active_employer),
+    db: Session = Depends(get_db)
+):
+    """
+    Searches and ranks all students. If the query is empty, it returns all students.
+    """
+    all_students = crud.get_all_students(db)
+    ranked_students = []
+
+    for student in all_students:
+        # If search query is empty, set score to 0 and add them to the list
+        if not search_request.query.strip():
+            match_score = 0
+        else:
+            # Otherwise, calculate score as before
+            if student.student_profile:
+                student_text = " ".join(filter(None, [
+                    student.student_profile.skills,
+                    student.student_profile.experience,
+                    student.student_profile.projects,
+                    student.student_profile.career_goals,
+                    student.bio
+                ]))
+                
+                if not student_text.strip():
+                    match_score = 0
+                else:
+                    match_score = scanner.calculate_match_score(student_text, search_request.query)
+            else:
+                match_score = 0
+
+        ranked_students.append(schemas.StudentSearchResult(
+            user=student,
+            student_profile=student.student_profile,
+            match_score=match_score
+        ))
+
+    # Sort by match score in descending order
+    sorted_results = sorted(ranked_students, key=lambda s: s.match_score, reverse=True)
+    return sorted_results
+
+
+@app.post("/employers/internships/{internship_id}/offer-to/{student_id}", response_model=schemas.ApplicationResponse)
+def offer_internship_to_student(
+    internship_id: int,
+    student_id: int,
+    current_user: models.User = Depends(auth.get_current_active_employer),
+    db: Session = Depends(get_db)
+):
+    """
+    Allows an employer to send an internship offer directly to a student.
+    """
+    internship = crud.get_internship(db, internship_id=internship_id)
+    if not internship:
+        raise HTTPException(status_code=404, detail="Internship not found")
+    if internship.employer_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to offer this internship")
+    
+    student = crud.get_user(db, user_id=student_id)
+    if not student or student.role != 'student':
+        raise HTTPException(status_code=404, detail="Student not found")
+
+    offer = crud.create_offer_application(db, student_id=student_id, internship_id=internship_id)
+    if offer is None:
+        raise HTTPException(status_code=400, detail="An application or offer for this internship already exists for this student.")
+        
+    return offer
+
+

@@ -11,6 +11,7 @@ import {
   FaUserTie,
   FaBriefcase,
   FaUsers,
+  FaSearch,
   FaClipboardList,
 } from "react-icons/fa";
 import { fetchCurrentUser, fetchMyEmployerProfile } from "../api";
@@ -72,6 +73,9 @@ const EmployerDashboard = () => {
           </Button>
           <Button className="sidebar-btn" onClick={() => navigate("/post-internship")}>
             <FaBriefcase /> Post Internship
+          </Button>
+          <Button className="sidebar-btn" onClick={() => navigate("/employer/view-interns")}>
+            <FaSearch /> Discover Interns
           </Button>
           <Button className="sidebar-btn" onClick={() => navigate("/hired-interns")}>
             <FaUsers /> Hired Interns

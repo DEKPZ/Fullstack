@@ -339,3 +339,34 @@ def get_hired_applications_for_employer(db: Session, employer_id: int, skip: int
         joinedload(models.Application.internship)
     ).offset(skip).limit(limit).all()
 
+
+def get_all_students(db: Session, skip: int = 0, limit: int = 200):
+    """Retrieve a list of all student users with their profiles."""
+    return db.query(models.User).filter(models.User.role == 'student').options(
+        joinedload(models.User.student_profile)
+    ).offset(skip).limit(limit).all()
+
+def create_offer_application(db: Session, student_id: int, internship_id: int):
+    """
+    Creates an application initiated by an employer as an offer.
+    The status is set directly to 'accepted'.
+    """
+    # Check if an application already exists to avoid duplicates
+    existing_application = db.query(models.Application).filter(
+        models.Application.internship_id == internship_id,
+        models.Application.student_id == student_id
+    ).first()
+    if existing_application:
+        return None  # Indicate that an application/offer already exists
+
+    db_offer = models.Application(
+        internship_id=internship_id,
+        student_id=student_id,
+        status="accepted",  # Set status to 'accepted' to signify an offer
+        cover_letter="This offer was extended directly by the employer."
+    )
+    db.add(db_offer)
+    db.commit()
+    db.refresh(db_offer)
+    return db_offer
+

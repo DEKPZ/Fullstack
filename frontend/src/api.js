@@ -585,3 +585,39 @@ export const generateResumePdf = async (resumeData) => {
     throw error;
   }
 };
+
+
+export const fetchMatchedStudents = async (searchQuery) => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.post(`${API_BASE_URL}/employers/match-students`, 
+      { query: searchQuery }, // The request body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching matched students:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const offerInternship = async (internshipId, studentId) => {
+  try {
+    const token = getAuthToken();
+    if (!token) throw new Error("No authentication token found.");
+    const response = await axios.post(`${API_BASE_URL}/employers/internships/${internshipId}/offer-to/${studentId}`, {}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error offering internship ${internshipId} to student ${studentId}:`, error.response ? error.response.data : error.message);
+    throw error;
+  }
+};

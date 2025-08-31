@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, LogIn, User, Building2 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
-import { loginUser, fetchCurrentUser } from '../api'; // Import your API functions
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 import './Login.css';
 
 
@@ -15,6 +15,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get the login function from context
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,20 +56,15 @@ const Login = () => {
     setErrors({}); // Clear previous errors
 
     try {
-      // The LoginRequest schema expects 'email' and 'password'
       const loginData = {
         email: formData.email,
         password: formData.password,
       };
 
-      const loginResponse = await loginUser(loginData);
+      const userDetails = await login(loginData); // Use the context's login function
 
-      if (loginResponse.access_token) {
-        // Token is saved in localStorage by the api.js function.
-        // Now, fetch the user's details to get their role.
-        const userDetails = await fetchCurrentUser();
-
-        // Navigate based on the role from the /users/me endpoint
+      if (userDetails) {
+        // Navigate based on the role from the context
         switch (userDetails.role) {
           case 'employer':
             navigate('/employer');

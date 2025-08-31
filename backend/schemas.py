@@ -91,8 +91,8 @@ class UserResponse(UserBase):
     role: str
     created_at: datetime
     updated_at: Optional[datetime] = None
-    credits: int
-    is_premium: bool
+    credits: Optional[int] = 5
+    is_premium: Optional[bool] = False
     premium_expires_at: Optional[datetime] = None 
 
     class Config:
@@ -307,3 +307,24 @@ class HiredInternDetailResponse(ApplicationResponse):
 
     class Config:
         from_attributes = True
+
+
+class StudentProfileForDiscovery(StudentProfileBase):
+    # User details needed for the discovery page
+    id: int
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    bio: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class StudentSearchResult(BaseModel):
+    # This schema will be used for the ranked list of students
+    user: UserResponse
+    student_profile: Optional[StudentProfileForDiscovery] = None
+    match_score: int = 0
+
+class StudentSearchRequest(BaseModel):
+    # Schema for the search request body
+    query: str
